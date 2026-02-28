@@ -1,0 +1,24 @@
+apps:
+  ripcd:
+    command: 'bin/ripcd'
+    plugs:
+      - 'home'
+      - 'network'
+      - 'network-bind'
+base: 'core24'
+confinement: 'strict'
+description: 'Rip audio CD to FLAC with CDDB metadata.'
+grade: 'stable'
+name: 'ripcd'
+parts:
+  ripcd:
+    plugin: 'poetry'
+    source: '.'
+    stage-packages: []
+platforms:
+  amd64:
+    build-on: 'amd64'
+  arm64:
+    build-on: 'arm64'
+summary: 'Rip audio CD to FLAC with CDDB metadata.'
+version: '0.0.0'
