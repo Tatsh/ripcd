@@ -103,6 +103,7 @@ cz-path = "^0.0.4"
 djlint = "^1.36.4"
 mypy = "^1.19.1"
 ruff = "^0.15.4"
+types-requests = "^2.32.4.20260107"
 yapf = "^0.43.0"
 
 [tool.poetry.group.docs]

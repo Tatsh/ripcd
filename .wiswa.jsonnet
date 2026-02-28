@@ -19,6 +19,13 @@ local utils = import 'utils.libjsonnet';
           },
           requests: utils.latestPypiPackageVersionCaret('requests'),
         },
+        group+: {
+          dev+: {
+            dependencies+: {
+              'types-requests': utils.latestPypiPackageVersionCaret('types-requests'),
+            },
+          },
+        },
       },
     },
   },
