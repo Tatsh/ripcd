@@ -629,16 +629,16 @@ wheels = [
 
 [[package]]
 name = "cz-path"
-version = "0.0.5"
+version = "0.0.6"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "commitizen" },
     { name = "gitpython" },
     { name = "typing-extensions" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/0a/09/1edd27013cfc20402696f6138552dd7675c85ca9fca5ac30c8c2861736b3/cz_path-0.0.5.tar.gz", hash = "sha256:c8c9b6a70ab250069760450ab7808b64a687dc04fbd920afe0e8ba0fb0730373", size = 1236236, upload-time = "2026-03-15T09:54:10.926Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/f6/63/572eb6852727f0e732315e8bb6b147371848e9de7d1a457af1d4878d899a/cz_path-0.0.6.tar.gz", hash = "sha256:025c5556b03b58191a5c9ae2fbd9344456d4b3e1bd2420ed1790da1074cf34eb", size = 1247276, upload-time = "2026-03-21T19:30:14.582Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/a1/de/65eb6d95d1f3cffcc854c6f7df70810f82c1aba94d62cae726ade9f89d7b/cz_path-0.0.5-py3-none-any.whl", hash = "sha256:79f505278c60f93c4f1f6cbab9e39acc040561364f85b9dfcb6f0607e003813f", size = 5275, upload-time = "2026-03-15T09:54:09.568Z" },
+    { url = "https://files.pythonhosted.org/packages/b8/8b/8db8066214db09d312baccbb9577b2b40cd6bfd0269479238adbea2730ac/cz_path-0.0.6-py3-none-any.whl", hash = "sha256:d616ebc6d374b8ae02b1435c274ac5a22ab706da5c2cc3c5257f61e49b768190", size = 5525, upload-time = "2026-03-21T19:30:13.401Z" },
 ]
 
 [[package]]
@@ -652,26 +652,26 @@ wheels = [
 
 [[package]]
 name = "deltona"
-version = "0.1.3"
+version = "0.1.4"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "bascom" },
     { name = "binaryornot" },
     { name = "click" },
-    { name = "keyring" },
     { name = "requests" },
-    { name = "send2trash" },
     { name = "typing-extensions" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/ea/ff/10cdc148495c4f583485474353670ca1d9eecdb3e7f0d4bb97d5f06f0b51/deltona-0.1.3.tar.gz", hash = "sha256:861145267553c67161aeecbe27b8a6e35d44dd6897ce772f08f897636a377516", size = 1421251, upload-time = "2026-03-21T19:19:09.05Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/91/7a/61efd8ebccb608e30e4167c18b992ece6549c0cd1901cb7a7b73ef25420d/deltona-0.1.4.tar.gz", hash = "sha256:06edb9d0bf4f635fad1db2b00e5722bdcdb6685d0813665a95ac21daaa7c3d01", size = 1421596, upload-time = "2026-03-21T19:58:31.982Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/2f/e5/beee4e256fd8eb7cb46a74c0027299acd7bc86e4c2bad20ca5f80db0fb91/deltona-0.1.3-py3-none-any.whl", hash = "sha256:69551f6ec475ade371fb525fa59e30b95e03306f9678c33c6583cefa25d61a76", size = 86368, upload-time = "2026-03-21T19:19:07.433Z" },
+    { url = "https://files.pythonhosted.org/packages/d7/c8/442a4e5d25982887392ec2994e8c7c91ae3650a07b5afbdb83d2b90936f7/deltona-0.1.4-py3-none-any.whl", hash = "sha256:66b58f78b9b7c6f037c4ad9c0cb59756d491862924a44a29389f7706196c89a8", size = 86528, upload-time = "2026-03-21T19:58:30.137Z" },
 ]
 
 [package.optional-dependencies]
 media = [
+    { name = "keyring" },
     { name = "mutagen" },
     { name = "platformdirs" },
+    { name = "send2trash" },
 ]
 
 [[package]]
@@ -1784,7 +1784,7 @@ tests = [
 requires-dist = [
     { name = "bascom", specifier = ">=0.1.2" },
     { name = "click", specifier = ">=8.3.1" },
-    { name = "deltona", extras = ["media"], specifier = ">=0.1.3" },
+    { name = "deltona", extras = ["media"], specifier = ">=0.1.4" },
     { name = "requests", specifier = ">=2.32.5" },
     { name = "typing-extensions", specifier = ">=4.15.0" },
 ]
@@ -1792,7 +1792,7 @@ requires-dist = [
 [package.metadata.requires-dev]
 dev = [
     { name = "commitizen", specifier = ">=4.13.9" },
-    { name = "cz-path", specifier = ">=0.0.5" },
+    { name = "cz-path", specifier = ">=0.0.6" },
     { name = "mypy", specifier = ">=1.19.1" },
     { name = "ruff", specifier = ">=0.15.7" },
     { name = "types-requests", specifier = ">=2.32.4.20260107" },
