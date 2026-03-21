@@ -70,7 +70,9 @@ proc
 prodvers
 pycache
 pydantic
+pydbus
 pydocstyle
+pygobject
 pyinstaller
 pylint
 pypa

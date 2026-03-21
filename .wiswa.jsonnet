@@ -32,9 +32,20 @@ local utils = import 'utils.libjsonnet';
   copilot: {
     intro: 'ripcd is a simple CLI application to rip a CD to FLAC with CDDB metadata.',
   },
+  // Required by deltona (transitive dependency: binaryornot).
   pyinstaller+: {
     collect_data: ['binaryornot'],
+    vcpkg: {
+      enabled: true,
+      targets: {
+        'windows-11-arm': {
+          triplet: 'arm64-windows',
+          packages: ['openssl'],
+        },
+      },
+    },
   },
+  // Required by deltona (transitive dependencies: pydbus, pygobject).
   local apt_packages = ['libcairo2-dev', 'libgirepository-2.0-dev'],
   github+: {
     workflows+: {
