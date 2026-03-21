@@ -12,7 +12,10 @@ grade: 'stable'
 name: 'ripcd'
 parts:
   ripcd:
-    build-packages: []
+    build-packages:
+      - 'libcairo2-dev'
+      - 'libgirepository-2.0-dev'
+      - 'pkg-config'
     plugin: 'python'
     python-packages:
       - '.'

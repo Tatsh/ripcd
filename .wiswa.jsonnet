@@ -32,4 +32,35 @@ local utils = import 'utils.libjsonnet';
   copilot: {
     intro: 'ripcd is a simple CLI application to rip a CD to FLAC with CDDB metadata.',
   },
+  pyinstaller+: {
+    collect_data: ['binaryornot'],
+  },
+  local apt_packages = ['libcairo2-dev', 'libgirepository-2.0-dev'],
+  github+: {
+    workflows+: {
+      appimage+: {
+        apt_packages: apt_packages,
+      },
+      pyinstaller+: {
+        apt_packages: apt_packages,
+      },
+      qa+: {
+        apt_packages: apt_packages,
+      },
+      tests+: {
+        apt_packages: apt_packages,
+      },
+    },
+  },
+  snap_python_build_packages: [
+    'libcairo2-dev',
+    'libgirepository-2.0-dev',
+    'pkg-config',
+  ],
+  readthedocs+: {
+    build+: {
+      apt_packages: apt_packages,
+      os: 'ubuntu-24.04',
+    },
+  },
 }

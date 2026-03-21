@@ -6,6 +6,7 @@ appinfo
 asyncio
 autodoc
 bascom
+binaryornot
 bsky
 cdda
 cddb
@@ -44,7 +45,9 @@ jsonschema
 kwargs
 launchable
 lextudio
+libcairo
 libera
+libgirepository
 libjsonnet
 libsonnet
 linters
