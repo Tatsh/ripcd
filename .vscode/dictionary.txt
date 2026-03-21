@@ -45,9 +45,7 @@ jsonschema
 kwargs
 launchable
 lextudio
-libcairo
 libera
-libgirepository
 libjsonnet
 libsonnet
 linters
@@ -70,9 +68,7 @@ proc
 prodvers
 pycache
 pydantic
-pydbus
 pydocstyle
-pygobject
 pyinstaller
 pylint
 pypa
@@ -100,7 +96,6 @@ tonumber
 tracknumber
 ubyte
 udvare
-userprofile
 vendored
 venv
 vers

@@ -14,6 +14,7 @@ local utils = import 'utils.libjsonnet';
           bascom: utils.latestPypiPackageVersionCaret('bascom'),
           click: utils.latestPypiPackageVersionCaret('click'),
           deltona: {
+            extras: ['media'],
             python: '>=3.11,<3.14',
             version: utils.latestPypiPackageVersionCaret('deltona'),
           },
@@ -35,43 +36,5 @@ local utils = import 'utils.libjsonnet';
   // Required by deltona (transitive dependency: binaryornot).
   pyinstaller+: {
     collect_data: ['binaryornot'],
-    vcpkg: {
-      enabled: true,
-      targets: {
-        'windows-11-arm': {
-          triplet: 'arm64-windows',
-          packages: ['openssl'],
-        },
-      },
-    },
-  },
-  // Required by deltona (transitive dependencies: pydbus, pygobject).
-  local apt_packages = ['libcairo2-dev', 'libgirepository-2.0-dev'],
-  github+: {
-    workflows+: {
-      appimage+: {
-        apt_packages: apt_packages,
-      },
-      pyinstaller+: {
-        apt_packages: apt_packages,
-      },
-      qa+: {
-        apt_packages: apt_packages,
-      },
-      tests+: {
-        apt_packages: apt_packages,
-      },
-    },
-  },
-  snap_python_build_packages: [
-    'libcairo2-dev',
-    'libgirepository-2.0-dev',
-    'pkg-config',
-  ],
-  readthedocs+: {
-    build+: {
-      apt_packages: apt_packages,
-      os: 'ubuntu-24.04',
-    },
   },
 }
