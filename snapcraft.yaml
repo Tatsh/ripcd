@@ -12,7 +12,10 @@ grade: 'stable'
 name: 'ripcd'
 parts:
   ripcd:
-    plugin: 'poetry'
+    build-packages: []
+    plugin: 'python'
+    python-packages:
+      - '.'
     source: '.'
     stage-packages: []
 platforms:
