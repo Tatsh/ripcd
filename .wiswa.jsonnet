@@ -4,7 +4,7 @@ local utils = import 'utils.libjsonnet';
   description: 'Rip audio CD to FLAC with CDDB metadata.',
   keywords: ['cd', 'cddb', 'flac', 'rip'],
   project_name: 'ripcd',
-  version: '0.0.0',
+  version: '0.0.1',
   want_main: true,
   want_man: true,
   pyproject+: {
