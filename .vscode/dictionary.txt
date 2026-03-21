@@ -22,6 +22,7 @@ coverallsapp
 ctypes
 dashcam
 dataclasses
+datatable
 datatables
 debugpy
 docstrings
@@ -32,8 +33,10 @@ elif
 esbenp
 esbonio
 filevers
+fontawesome
 foxundermoon
 functools
+globaltoc
 gnudb
 hoverxref
 htmlcov
@@ -86,6 +89,7 @@ snapcore
 snapcraft
 softprops
 soupsieve
+sphinxcontrib
 syft
 tatsh
 testpaths
