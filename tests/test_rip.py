@@ -74,6 +74,24 @@ def test_rip_cdda_to_flac_calls_stderr_callback(mocker: MockerFixture, tmp_path:
     cb.assert_any_call('progress line')
 
 
+def test_rip_cdda_to_flac_raises_on_stderr_none(mocker: MockerFixture, tmp_path: Path) -> None:
+    fake_cddb_result = mocker.Mock()
+    fake_cddb_result.artist = 'A'
+    fake_cddb_result.album = 'B'
+    fake_cddb_result.year = 2021
+    fake_cddb_result.tracks = ('T1',)
+    mocker.patch('ripcd.rip.cddb_query', return_value=fake_cddb_result)
+    mocker.patch('ripcd.rip.get_cd_disc_id', return_value='fake_disc_id')
+    mock_proc = mocker.Mock()
+    mock_proc.stderr = None
+    mocker.patch('ripcd.rip.sp.Popen', return_value=mock_proc)
+    with pytest.raises(TypeError, match='stderr is None'):
+        rip_cdda_to_flac(drive='/dev/cdrom',
+                         output_dir=tmp_path,
+                         stderr_callback=mocker.Mock(),
+                         username='user')
+
+
 def test_rip_cdda_to_flac_raises_on_cdparanoia_failure(mocker: MockerFixture,
                                                        tmp_path: Path) -> None:
     fake_cddb_result = mocker.Mock()

@@ -34,9 +34,33 @@ def rip_cdda_to_flac(
 
     Requires ``cdparanoia`` and ``flac`` to be in ``PATH``.
 
+    Parameters
+    ----------
+    drive : StrPath
+        Optical drive device path.
+    accept_first_cddb_match : bool
+        Accept the first CDDB match in case of multiple matches.
+    album_artist : str | None
+        Album artist override.
+    album_dir : StrPath | None
+        Album directory name. Defaults to artist-album-year format.
+    cddb_host : str | None
+        CDDB host.
+    never_skip : int
+        Passed to ``cdparanoia``'s ``--never-skip`` option.
+    output_dir : StrPath | None
+        Parent directory for *album_dir*. Defaults to the current directory.
+    stderr_callback : Callable[[str], None] | None
+        Callback invoked with each non-empty line from ``cdparanoia``'s standard error.
+    username : str | None
+        Username for CDDB.
+
     Raises
     ------
-    CalledProcessError
+    subprocess.CalledProcessError
+        If ``cdparanoia`` or ``flac`` exits with a non-zero code.
+    TypeError
+        If stderr is ``None`` when *stderr_callback* is provided.
     """
     result = cddb_query(
         get_cd_disc_id(drive),
@@ -69,7 +93,9 @@ def rip_cdda_to_flac(
             text=True,
         )
         if stderr_callback:
-            assert proc.stderr is not None
+            if proc.stderr is None:
+                msg = 'stderr is None.'
+                raise TypeError(msg)
             while proc.stderr.readable():
                 if line := proc.stderr.readline().strip():
                     stderr_callback(line)
@@ -77,7 +103,7 @@ def rip_cdda_to_flac(
         if (code := proc.wait()) != 0:
             raise sp.CalledProcessError(code, cdparanoia_command)
         sp.run(
-            (
+            (  # noqa: S607
                 'flac',
                 '--delete-input-file',
                 '--force',
@@ -94,5 +120,4 @@ def rip_cdda_to_flac(
                 f'--tag=YEAR={result.year:04d}',
                 str(wav),
             ),
-            check=True,
-        )
+            check=True)

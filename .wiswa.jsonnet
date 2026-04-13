@@ -1,11 +1,14 @@
 local utils = import 'utils.libjsonnet';
 
 {
+  uses_user_defaults: true,
   description: 'Rip audio CD to FLAC with CDDB metadata.',
   keywords: ['cd', 'cddb', 'flac', 'rip'],
   project_name: 'ripcd',
   version: '0.0.1',
   want_main: true,
+  want_flatpak: true,
+  publishing+: { flathub: 'sh.tat.ripcd' },
   want_man: true,
   pyproject+: {
     tool+: {
@@ -29,9 +32,6 @@ local utils = import 'utils.libjsonnet';
         },
       },
     },
-  },
-  copilot: {
-    intro: 'ripcd is a simple CLI application to rip a CD to FLAC with CDDB metadata.',
   },
   // Required by deltona (transitive dependency: binaryornot).
   pyinstaller+: {

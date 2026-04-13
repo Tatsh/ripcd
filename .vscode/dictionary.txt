@@ -1,5 +1,6 @@
 albumartist
 anchore
+Ångström
 appdir
 appimage
 appinfo
@@ -14,9 +15,11 @@ cdparanoia
 cdparanoia's
 cdrom
 cdrommsf
+codesign
 colorlog
 commitizen
 conftest
+cooldown
 coveragerc
 coverallsapp
 ctypes
@@ -26,15 +29,15 @@ datatable
 datatables
 debugpy
 docstrings
+doctree
 doctrees
-dorny
 dunder
 eeyore
 elif
 esbenp
 esbonio
 filevers
-fontawesome
+flathub
 foxundermoon
 functools
 globaltoc
@@ -44,9 +47,11 @@ htmlcov
 intersphinx
 isort
 itertools
+jinja
 jsonnet
 jsonschema
 kwargs
+lastexitcode
 launchable
 lextudio
 libera
@@ -60,6 +65,8 @@ myproject
 mypy
 namedtuples
 norecursedirs
+notarytool
+npmjs
 numpy
 numpydoc
 onefile
@@ -75,6 +82,7 @@ pydantic
 pydocstyle
 pyinstaller
 pylint
+pylock
 pypa
 pypi
 pyproject
@@ -83,9 +91,11 @@ regen
 ripcd
 rstcheck
 schemafile
+sdist
 setattr
 shellcheck
 shellformat
+signtool
 snapcore
 snapcraft
 softprops
@@ -106,7 +116,8 @@ venv
 vers
 virtualenv
 wiswa
+wiswa's
+xcrun
 yapf
 yapfignore
 yarnrc
-ångström
