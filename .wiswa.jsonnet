@@ -2,7 +2,7 @@ local utils = import 'utils.libjsonnet';
 
 {
   uses_user_defaults: true,
-  description: 'Rip audio CD to FLAC with CDDB metadata.',
+  description: 'Rip an audio CD to FLAC with CDDB metadata.',
   keywords: ['cd', 'cddb', 'flac', 'rip'],
   project_name: 'ripcd',
   version: '0.0.1',
@@ -21,12 +21,16 @@ local utils = import 'utils.libjsonnet';
             python: '>=3.11,<3.14',
             version: utils.latestPypiPackageVersionCaret('deltona'),
           },
-          requests: utils.latestPypiPackageVersionCaret('requests'),
+          anyio: utils.latestPypiPackageVersionCaret('anyio'),
+          niquests: utils.latestPypiPackageVersionCaret('niquests'),
         },
         group+: {
           dev+: {
+            dependencies+: {},
+          },
+          tests+: {
             dependencies+: {
-              'types-requests': utils.latestPypiPackageVersionCaret('types-requests'),
+              'pytest-asyncio': utils.latestPypiPackageVersionCaret('pytest-asyncio'),
             },
           },
         },

@@ -9,6 +9,14 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [unreleased]
 
+### Changed
+
+- Made `rip_cdda_to_flac` asynchronous; await it or run it on an event loop when using the Python
+  API (the CLI is unchanged).
+- CDDB query failures now raise `ValueError` with a clear message, with the original exception
+  chained.
+- Switched the CDDB HTTP client from `requests` to `niquests`.
+
 ## [0.0.1] - 2026-03-21
 
 ### Added

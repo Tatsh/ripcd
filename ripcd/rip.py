@@ -1,13 +1,14 @@
-"""Rip audio CD to FLAC."""
+"""Rip an audio CD to FLAC."""
 
 from __future__ import annotations
 
-from pathlib import Path
 from typing import TYPE_CHECKING
+import asyncio
 import logging
 import subprocess as sp
 
 from deltona.media import cddb_query, get_cd_disc_id
+import anyio
 
 if TYPE_CHECKING:
     from collections.abc import Callable
@@ -17,7 +18,33 @@ if TYPE_CHECKING:
 log = logging.getLogger(__name__)
 
 
-def rip_cdda_to_flac(
+async def _read_progress_stderr(stderr: asyncio.StreamReader,
+                                stderr_callback: Callable[[str], None]) -> None:
+    while line := await stderr.readline():
+        if line_text := line.decode().strip():
+            stderr_callback(line_text)
+
+
+async def _wait_for_process(
+    process: asyncio.subprocess.Process,
+    command: tuple[str, ...],
+    stderr_callback: Callable[[str], None] | None = None,
+) -> None:
+    if stderr_callback is None:
+        code = await process.wait()
+    else:
+        if process.stderr is None:
+            msg = 'stderr is None.'
+            raise TypeError(msg)
+        _, code = await asyncio.gather(
+            _read_progress_stderr(process.stderr, stderr_callback),
+            process.wait(),
+        )
+    if code != 0:
+        raise sp.CalledProcessError(code, command)
+
+
+async def rip_cdda_to_flac(
     drive: StrPath,
     *,
     accept_first_cddb_match: bool = True,
@@ -43,7 +70,7 @@ def rip_cdda_to_flac(
     album_artist : str | None
         Album artist override.
     album_dir : StrPath | None
-        Album directory name. Defaults to artist-album-year format.
+        Album directory name. Defaults to the artist-album-year format.
     cddb_host : str | None
         CDDB host.
     never_skip : int
@@ -57,26 +84,34 @@ def rip_cdda_to_flac(
 
     Raises
     ------
+    ValueError
+        If querying CDDB metadata fails.
     subprocess.CalledProcessError
         If ``cdparanoia`` or ``flac`` exits with a non-zero code.
     TypeError
         If stderr is ``None`` when *stderr_callback* is provided.
-    """
-    result = cddb_query(
-        get_cd_disc_id(drive),
-        app='ripcd rip_cdda',
-        accept_first_match=accept_first_cddb_match,
-        host=cddb_host,
-        username=username,
-    )
+    """  # noqa: DOC502 - Raised from `_wait_for_process` when running external programs.
+    try:
+        disc_id = await asyncio.to_thread(get_cd_disc_id, drive)
+        result = await asyncio.to_thread(
+            cddb_query,
+            disc_id,
+            app='ripcd rip_cdda',
+            accept_first_match=accept_first_cddb_match,
+            host=cddb_host,
+            username=username,
+        )
+    except Exception as e:
+        msg = 'Failed to query CDDB.'
+        raise ValueError(msg) from e
     log.debug('Result: %s', result)
-    output_dir = Path(output_dir or '.')
-    album_dir = ((output_dir / album_dir) if album_dir else output_dir /
-                 f'{album_artist or result.artist}-{result.album}-{result.year}')
-    album_dir.mkdir(parents=True, exist_ok=True)
+    output_dir_path = anyio.Path(output_dir or '.')
+    album_dir_path = ((output_dir_path / str(album_dir)) if album_dir else output_dir_path /
+                      f'{album_artist or result.artist}-{result.album}-{result.year}')
+    await album_dir_path.mkdir(parents=True, exist_ok=True)
     for i, track in enumerate(result.tracks, 1):
-        wav = album_dir / f'{i:02d}-{result.artist}-{track}.wav'
-        flac = str(wav.with_suffix('.flac'))
+        wav_path = album_dir_path / f'{i:02d}-{result.artist}-{track}.wav'
+        flac_path = wav_path.with_suffix('.flac')
         cdparanoia_command = (
             'cdparanoia',
             f'--force-cdrom-device={drive}',
@@ -84,40 +119,31 @@ def rip_cdda_to_flac(
             f'--never-skip={never_skip:d}',
             '--abort-on-skip',
             str(i),
-            str(wav),
+            str(wav_path),
         )
-        proc = sp.Popen(
-            cdparanoia_command,
-            stderr=sp.PIPE if stderr_callback else None,
-            stdout=sp.PIPE if stderr_callback else None,
-            text=True,
+        cdparanoia_process = await asyncio.create_subprocess_exec(
+            *cdparanoia_command,
+            stderr=asyncio.subprocess.PIPE if stderr_callback else None,
+            stdout=asyncio.subprocess.DEVNULL if stderr_callback else None,
         )
-        if stderr_callback:
-            if proc.stderr is None:
-                msg = 'stderr is None.'
-                raise TypeError(msg)
-            while proc.stderr.readable():
-                if line := proc.stderr.readline().strip():
-                    stderr_callback(line)
         log.debug('Waiting for cdparanoia to finish (i = %d, track = "%s").', i, track)
-        if (code := proc.wait()) != 0:
-            raise sp.CalledProcessError(code, cdparanoia_command)
-        sp.run(
-            (  # noqa: S607
-                'flac',
-                '--delete-input-file',
-                '--force',
-                '--replay-gain',
-                '--silent',
-                '--verify',
-                f'--output-name={flac}',
-                f'--tag=ALBUM={result.album}',
-                f'--tag=ALBUMARTIST={album_artist or result.artist}',
-                f'--tag=ARTIST={result.artist}',
-                f'--tag=GENRE={result.genre}',
-                f'--tag=TITLE={track}',
-                f'--tag=TRACKNUMBER={i:02d}',
-                f'--tag=YEAR={result.year:04d}',
-                str(wav),
-            ),
-            check=True)
+        await _wait_for_process(cdparanoia_process, cdparanoia_command, stderr_callback)
+        flac_command = (
+            'flac',
+            '--delete-input-file',
+            '--force',
+            '--replay-gain',
+            '--silent',
+            '--verify',
+            f'--output-name={flac_path!s}',
+            f'--tag=ALBUM={result.album}',
+            f'--tag=ALBUMARTIST={album_artist or result.artist}',
+            f'--tag=ARTIST={result.artist}',
+            f'--tag=GENRE={result.genre}',
+            f'--tag=TITLE={track}',
+            f'--tag=TRACKNUMBER={i:02d}',
+            f'--tag=YEAR={result.year:04d}',
+            str(wav_path),
+        )
+        flac_process = await asyncio.create_subprocess_exec(*flac_command)
+        await _wait_for_process(flac_process, flac_command)

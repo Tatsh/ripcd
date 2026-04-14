@@ -1,6 +1,7 @@
 albumartist
 anchore
 Ångström
+anyio
 appdir
 appimage
 appinfo
@@ -64,6 +65,7 @@ monkeypatch
 myproject
 mypy
 namedtuples
+niquests
 norecursedirs
 notarytool
 npmjs
@@ -75,7 +77,6 @@ pathlib
 pavelzw
 pipx
 plistlib
-proc
 prodvers
 pycache
 pydantic
