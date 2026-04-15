@@ -10,6 +10,7 @@ autodoc
 bascom
 binaryornot
 bsky
+brainz
 cdda
 cddb
 cdparanoia
@@ -32,6 +33,7 @@ debugpy
 docstrings
 doctree
 doctrees
+discid
 dunder
 eeyore
 elif
@@ -56,12 +58,15 @@ lastexitcode
 launchable
 lextudio
 libera
+libdiscid
 libjsonnet
 libsonnet
 linters
 manylinux
 mktemp
 monkeypatch
+musicbrainz
+musicbrainzngs
 myproject
 mypy
 namedtuples
@@ -112,6 +117,7 @@ tonumber
 tracknumber
 ubyte
 udvare
+useragent
 vendored
 venv
 vers

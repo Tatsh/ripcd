@@ -31,15 +31,13 @@ level margin: \\n[rst2man-indent\\n[rst2man-indent-level]]
 .SH NAME
 ripcd \- ripcd v0.0.1
 .sp
-Rip audio CD to FLAC with CDDB metadata. Linux only. Requires \fBcdparanoia\fP and \fBflac\fP in PATH.
+Rip audio CDs to FLAC, with metadata. Requires \fBcdparanoia\fP and \fBflac\fP in PATH.
 .SH COMMANDS
 .SS ripcd
 .sp
 Rip an audio disc to FLAC files.
 .sp
 Requires cdparanoia and flac to be in PATH.
-.sp
-For Linux only.
 .sp
 Usage
 .INDENT 0.0
@@ -75,7 +73,7 @@ Album directory name. Defaults to artist\-album\-year format.
 .INDENT 0.0
 .TP
 .B \-\-cddb\-host <cddb_host>
-CDDB host (default from keyring gnudb/<user>).
+CDDB host (default is read from the keyring under gnudb/<user>).
 .UNINDENT
 .INDENT 0.0
 .TP

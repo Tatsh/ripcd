@@ -30,7 +30,7 @@
 
 <!-- WISWA-GENERATED-README:STOP -->
 
-Rip audio CD to FLAC with CDDB metadata. Linux only. Requires `cdparanoia` and `flac` in PATH.
+Rip audio CDs to FLAC, with metadata. Requires `cdparanoia` and `flac` in PATH.
 
 ## Installation
 
@@ -47,8 +47,6 @@ Usage: ripcd [OPTIONS]
 
   Requires cdparanoia and flac to be in PATH.
 
-  For Linux only.
-
 Options:
   -D, --drive FILE               Optical drive path.
   -M, --accept-first-cddb-match  Accept the first CDDB match in case of
@@ -56,8 +54,8 @@ Options:
   --album-artist TEXT            Album artist override.
   --album-dir TEXT               Album directory name. Defaults to artist-
                                  album-year format.
-  --cddb-host TEXT               CDDB host (default from keyring
-                                 gnudb/<user>).
+  --cddb-host TEXT               CDDB host (default is read from the keyring
+                                 under gnudb/<user>).
   --never-skip INTEGER           Passed to cdparanoia's --never-skip=...
                                  option.
   -d, --debug                    Enable debug output.
@@ -67,4 +65,6 @@ Options:
   -h, --help                     Show this message and exit.
 ```
 
-CDDB host can be set via keyring under the `gnudb` key for your username, or via `--cddb-host`.
+Metadata lookup uses MusicBrainz first, then CDDB.
+The CDDB host can be set in the keyring under the `gnudb` key for your username, or with
+`--cddb-host`.

@@ -3,7 +3,7 @@ ripcd
 
 .. include:: badges.rst
 
-Rip audio CD to FLAC with CDDB metadata. Linux only. Requires ``cdparanoia`` and ``flac`` in PATH.
+Rip audio CDs to FLAC, with metadata. Requires ``cdparanoia`` and ``flac`` in PATH.
 
 Commands
 --------

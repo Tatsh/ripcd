@@ -9,13 +9,22 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [unreleased]
 
+### Added
+
+- MusicBrainz release metadata lookup before CDDB; CDDB is still queried when MusicBrainz has no
+  suitable release or errors occur.
+
 ### Changed
 
 - Made `rip_cdda_to_flac` asynchronous; await it or run it on an event loop when using the Python
   API (the CLI is unchanged).
-- CDDB query failures now raise `ValueError` with a clear message, with the original exception
-  chained.
+- Default `--drive` path now comes from libdiscid when available, otherwise `/dev/sr0`.
+- Disc ID read failures raise `ValueError` with a clear message and chained exception.
+- When MusicBrainz does not yield metadata and CDDB fails, raises `RuntimeError` with a clear
+  message and chained exception.
 - Switched the CDDB HTTP client from `requests` to `niquests`.
+- Descriptions and CLI help no longer state Linux-only; `cdparanoia` and `flac` are still required
+  in `PATH`.
 
 ## [0.0.1] - 2026-03-21
 

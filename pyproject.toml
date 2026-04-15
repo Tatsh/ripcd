@@ -51,10 +51,12 @@ dependencies = [
   "bascom>=0.1.2",
   "click>=8.3.2",
   "deltona[media]>=0.1.4",
+  "discid>=1.4.0",
+  "musicbrainzngs>=0.7.1",
   "niquests>=3.18.4",
   "typing-extensions>=4.15.0",
 ]
-description = "Rip an audio CD to FLAC with CDDB metadata."
+description = "Rip audio CDs to FLAC, with metadata."
 keywords = ["cd", "cddb", "flac", "rip"]
 license = "MIT"
 name = "ripcd"

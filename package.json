@@ -34,7 +34,7 @@
     ],
     "useGitignore": true
   },
-  "description": "Rip audio CD to FLAC with CDDB metadata.",
+  "description": "Rip audio CDs to FLAC, with metadata.",
   "devDependencies": {
     "@prettier/plugin-xml": "^3.4.2",
     "cspell": "^10.0.0",
