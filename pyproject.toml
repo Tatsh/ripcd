@@ -51,7 +51,7 @@ dependencies = [
   "bascom>=0.1.2",
   "click>=8.3.2",
   "deltona[media]>=0.1.4",
-  "niquests>=3.18.4",
+  "niquests>=3.18.5",
   "typing-extensions>=4.15.0",
 ]
 description = "Rip an audio CD to FLAC with CDDB metadata."
