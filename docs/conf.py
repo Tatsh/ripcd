@@ -24,12 +24,8 @@ copyright = str(datetime.now(timezone.utc).year)  # noqa: A001
 project = name
 release = f'v{version}'
 extensions = [
-    'sphinx.ext.autodoc',
-    'sphinx.ext.intersphinx',
-    'sphinx.ext.napoleon',
-    'sphinx_datatables',
-    'sphinx_immaterial',
-    'sphinxcontrib.jquery',
+    'sphinx.ext.autodoc', 'sphinx.ext.intersphinx', 'sphinx.ext.napoleon', 'sphinx_datatables',
+    'sphinx_immaterial', 'sphinxcontrib.jquery'
 ]
 extensions += ['sphinx_click']
 datatables_class = 'sphinx-datatable'
@@ -39,59 +35,45 @@ html_theme = 'sphinx_immaterial'
 html_theme_options = {
     'edit_uri': '/tree/master/docs',
     'features': [
-        'announce.dismiss',
-        'content.action.edit',
-        'content.action.view',
-        'content.code.copy',
-        'content.tabs.link',
-        'content.tooltips',
-        'navigation.expand',
-        'navigation.footer',
-        'navigation.sections',
-        'navigation.top',
-        'search.share',
-        'search.suggest',
-        'toc.follow',
-        'toc.sticky',
+        'announce.dismiss', 'content.action.edit', 'content.action.view', 'content.code.copy',
+        'content.tabs.link', 'content.tooltips', 'navigation.expand', 'navigation.footer',
+        'navigation.sections', 'navigation.top', 'search.share', 'search.suggest', 'toc.follow',
+        'toc.sticky'
     ],
     'globaltoc_collapse': True,
     'icon': {
         'edit': 'material/file-edit-outline',
         'repo': 'fontawesome/brands/github'
     },
-    'palette': [
-        {
-            'media': '(prefers-color-scheme)',
-            'toggle': {
-                'icon': 'material/brightness-auto',
-                'name': 'Switch to light mode'
-            },
-        },
-        {
-            'accent': 'light-blue',
-            'media': '(prefers-color-scheme: light)',
-            'primary': 'teal',
-            'scheme': 'default',
-            'toggle': {
-                'icon': 'material/lightbulb',
-                'name': 'Switch to dark mode'
-            },
-        },
-        {
-            'accent': 'blue',
-            'media': '(prefers-color-scheme: dark)',
-            'primary': 'black',
-            'scheme': 'slate',
-            'toggle': {
-                'icon': 'material/lightbulb-outline',
-                'name': 'Switch to system preference'
-            },
-        },
-    ],
+    'palette': [{
+        'media': '(prefers-color-scheme)',
+        'toggle': {
+            'icon': 'material/brightness-auto',
+            'name': 'Switch to light mode'
+        }
+    }, {
+        'accent': 'light-blue',
+        'media': '(prefers-color-scheme: light)',
+        'primary': 'teal',
+        'scheme': 'default',
+        'toggle': {
+            'icon': 'material/lightbulb',
+            'name': 'Switch to dark mode'
+        }
+    }, {
+        'accent': 'blue',
+        'media': '(prefers-color-scheme: dark)',
+        'primary': 'black',
+        'scheme': 'slate',
+        'toggle': {
+            'icon': 'material/lightbulb-outline',
+            'name': 'Switch to system preference'
+        }
+    }],
     'repo_name': 'ripcd',
     'repo_url': 'https://github.com/Tatsh/ripcd',
     'site_url': 'https://ripcd.readthedocs.org',
-    'toc_title_is_page_title': True,
+    'toc_title_is_page_title': True
 }
 intersphinx_mapping = {
     'python': ('https://docs.python.org/3', None),
@@ -99,5 +81,5 @@ intersphinx_mapping = {
     'click': ('https://click.palletsprojects.com/en/latest/', None),
     'deltona': ('https://deltona.readthedocs.io/en/latest/', None),
     'requests': ('https://requests.readthedocs.io/en/latest/', None),
-    'typing-extensions': ('https://typing-extensions.readthedocs.io/en/latest/', None),
+    'typing-extensions': ('https://typing-extensions.readthedocs.io/en/latest/', None)
 }

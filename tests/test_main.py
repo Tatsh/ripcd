@@ -37,11 +37,9 @@ def test_ripcd_error(mocker: MockerFixture, runner: CliRunner, tmp_path: Path) -
 
 def test_ripcd_called_process_error(mocker: MockerFixture, runner: CliRunner,
                                     tmp_path: Path) -> None:
-    mocker.patch(
-        'ripcd.main.rip_cdda_to_flac',
-        new_callable=AsyncMock,
-        side_effect=sp.CalledProcessError(1, ('cdparanoia',)),
-    )
+    mocker.patch('ripcd.main.rip_cdda_to_flac',
+                 new_callable=AsyncMock,
+                 side_effect=sp.CalledProcessError(1, ('cdparanoia',)))
     drive_path = tmp_path / 'drive'
     drive_path.touch()
     result = runner.invoke(ripcd, ['--drive', str(drive_path)])
@@ -50,11 +48,9 @@ def test_ripcd_called_process_error(mocker: MockerFixture, runner: CliRunner,
 
 def test_ripcd_niquests_request_exception(mocker: MockerFixture, runner: CliRunner,
                                           tmp_path: Path) -> None:
-    mocker.patch(
-        'ripcd.main.rip_cdda_to_flac',
-        new_callable=AsyncMock,
-        side_effect=niquests.RequestException('connection failed'),
-    )
+    mocker.patch('ripcd.main.rip_cdda_to_flac',
+                 new_callable=AsyncMock,
+                 side_effect=niquests.RequestException('connection failed'))
     drive_path = tmp_path / 'drive'
     drive_path.touch()
     result = runner.invoke(ripcd, ['--drive', str(drive_path)])
@@ -69,22 +65,14 @@ def test_ripcd_help_mentions_drive_default_and_cddb_host(runner: CliRunner) -> N
     assert 'gnudb' in result.output
 
 
-@pytest.mark.parametrize(
-    ('extra_args', 'expected_accept_first'),
-    [
-        pytest.param([], False, id='default_off'),
-        pytest.param(['-M'], True, id='short_flag'),
-        pytest.param(['--accept-first-cddb-match'], True, id='long_flag'),
-    ],
-)
-def test_ripcd_accept_first_cddb_match_flag(
-    mocker: MockerFixture,
-    runner: CliRunner,
-    tmp_path: Path,
-    *,
-    extra_args: list[str],
-    expected_accept_first: bool,
-) -> None:
+@pytest.mark.parametrize(('extra_args', 'expected_accept_first'), [
+    pytest.param([], False, id='default_off'),
+    pytest.param(['-M'], True, id='short_flag'),
+    pytest.param(['--accept-first-cddb-match'], True, id='long_flag')
+])
+def test_ripcd_accept_first_cddb_match_flag(mocker: MockerFixture, runner: CliRunner,
+                                            tmp_path: Path, *, extra_args: list[str],
+                                            expected_accept_first: bool) -> None:
     mock_rip = mocker.patch('ripcd.main.rip_cdda_to_flac', new_callable=AsyncMock)
     drive_path = tmp_path / 'drive'
     drive_path.touch()
