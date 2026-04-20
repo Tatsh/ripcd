@@ -16,6 +16,8 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Changed
 
+- Track extraction and FLAC encoding now run concurrently: `cdparanoia` reads the next track while
+  `flac` encodes the previous one, reducing total rip time on multi-track discs.
 - Made `rip_cdda_to_flac` asynchronous; await it or run it on an event loop when using the Python
   API (the CLI is unchanged).
 - Default `--drive` path now comes from libdiscid when available, otherwise `/dev/sr0`.

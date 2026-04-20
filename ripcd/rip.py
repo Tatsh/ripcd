@@ -32,6 +32,14 @@ class _Disc(Protocol):
     cddb_query_string: str
 
 
+class _TrackTask(NamedTuple):
+    track_number: int
+    track: str
+    wav_path: anyio.Path
+    flac_path: anyio.Path
+    flac_started: asyncio.Event
+
+
 def _coerce_year(value: int | str | None) -> int:
     match value:
         case int():
@@ -112,27 +120,18 @@ def _read_disc(drive: StrPath) -> _Disc:
     return read_disc(str(drive))
 
 
-def _query_cddb(
-    *,
-    accept_first_cddb_match: bool,
-    cddb_host: str | None,
-    cddb_query_string: str,
-    username: str | None,
-) -> _AlbumMetadata:
-    result = cddb_query(
-        cddb_query_string,
-        app='ripcd rip_cdda',
-        accept_first_match=accept_first_cddb_match,
-        host=cddb_host,
-        username=username,
-    )
-    return _AlbumMetadata(
-        artist=result.artist,
-        album=result.album,
-        year=result.year,
-        genre=result.genre,
-        tracks=tuple(result.tracks),
-    )
+def _query_cddb(*, accept_first_cddb_match: bool, cddb_host: str | None, cddb_query_string: str,
+                username: str | None) -> _AlbumMetadata:
+    result = cddb_query(cddb_query_string,
+                        app='ripcd rip_cdda',
+                        accept_first_match=accept_first_cddb_match,
+                        host=cddb_host,
+                        username=username)
+    return _AlbumMetadata(artist=result.artist,
+                          album=result.album,
+                          year=result.year,
+                          genre=result.genre,
+                          tracks=tuple(result.tracks))
 
 
 async def _read_progress_stderr(stderr: asyncio.StreamReader,
@@ -142,11 +141,9 @@ async def _read_progress_stderr(stderr: asyncio.StreamReader,
             stderr_callback(line_text)
 
 
-async def _wait_for_process(
-    process: asyncio.subprocess.Process,
-    command: tuple[str, ...],
-    stderr_callback: Callable[[str], None] | None = None,
-) -> None:
+async def _wait_for_process(process: asyncio.subprocess.Process,
+                            command: tuple[str, ...],
+                            stderr_callback: Callable[[str], None] | None = None) -> None:
     if stderr_callback is None:
         code = await process.wait()
     else:
@@ -159,18 +156,35 @@ async def _wait_for_process(
         raise sp.CalledProcessError(code, command)
 
 
-async def rip_cdda_to_flac(
-    drive: StrPath,
-    *,
-    accept_first_cddb_match: bool = True,
-    album_artist: str | None = None,
-    album_dir: StrPath | None = None,
-    cddb_host: str | None = None,
-    never_skip: int = 5,
-    output_dir: StrPath | None = None,
-    stderr_callback: Callable[[str], None] | None = None,
-    username: str | None = None,
-) -> None:
+def _build_cdparanoia_command(*, drive: StrPath, never_skip: int,
+                              stderr_callback: Callable[[str], None] | None,
+                              task: _TrackTask) -> tuple[str, ...]:
+    return ('cdparanoia', f'--force-cdrom-device={drive}',
+            *(('--quiet', '--stderr-progress') if stderr_callback else
+              ()), f'--never-skip={never_skip:d}', '--abort-on-skip', str(
+                  task.track_number), str(task.wav_path))
+
+
+def _build_flac_command(*, album_artist: str | None, metadata: _AlbumMetadata,
+                        task: _TrackTask) -> tuple[str, ...]:
+    return ('flac', '--delete-input-file', '--force', '--replay-gain', '--silent', '--verify',
+            f'--output-name={task.flac_path!s}', f'--tag=ALBUM={metadata.album}',
+            f'--tag=ALBUMARTIST={album_artist or metadata.artist}',
+            f'--tag=ARTIST={metadata.artist}', f'--tag=GENRE={metadata.genre}',
+            f'--tag=TITLE={task.track}', f'--tag=TRACKNUMBER={task.track_number:02d}',
+            f'--tag=YEAR={metadata.year:04d}', str(task.wav_path))
+
+
+async def rip_cdda_to_flac(drive: StrPath,
+                           *,
+                           accept_first_cddb_match: bool = True,
+                           album_artist: str | None = None,
+                           album_dir: StrPath | None = None,
+                           cddb_host: str | None = None,
+                           never_skip: int = 5,
+                           output_dir: StrPath | None = None,
+                           stderr_callback: Callable[[str], None] | None = None,
+                           username: str | None = None) -> None:
     """
     Rip an audio disc to FLAC files.
 
@@ -216,13 +230,11 @@ async def rip_cdda_to_flac(
     result = await asyncio.to_thread(_query_musicbrainz, disc.id)
     if result is None:
         try:
-            result = await asyncio.to_thread(
-                _query_cddb,
-                accept_first_cddb_match=accept_first_cddb_match,
-                cddb_host=cddb_host,
-                cddb_query_string=disc.cddb_query_string,
-                username=username,
-            )
+            result = await asyncio.to_thread(_query_cddb,
+                                             accept_first_cddb_match=accept_first_cddb_match,
+                                             cddb_host=cddb_host,
+                                             cddb_query_string=disc.cddb_query_string,
+                                             username=username)
         except Exception as e:
             msg = 'Failed to query metadata from MusicBrainz and CDDB.'
             raise RuntimeError(msg) from e
@@ -231,41 +243,58 @@ async def rip_cdda_to_flac(
     album_dir_path = ((output_dir_path / str(album_dir)) if album_dir else output_dir_path /
                       f'{album_artist or result.artist}-{result.album}-{result.year}')
     await album_dir_path.mkdir(parents=True, exist_ok=True)
-    for i, track in enumerate(result.tracks, 1):
-        wav_path = album_dir_path / f'{i:02d}-{result.artist}-{track}.wav'
-        flac_path = wav_path.with_suffix('.flac')
-        cdparanoia_command = (
-            'cdparanoia',
-            f'--force-cdrom-device={drive}',
-            *(('--quiet', '--stderr-progress') if stderr_callback else ()),
-            f'--never-skip={never_skip:d}',
-            '--abort-on-skip',
-            str(i),
-            str(wav_path),
-        )
-        cdparanoia_process = await asyncio.create_subprocess_exec(
-            *cdparanoia_command,
-            stderr=asyncio.subprocess.PIPE if stderr_callback else None,
-            stdout=asyncio.subprocess.DEVNULL if stderr_callback else None,
-        )
-        log.debug('Waiting for cdparanoia to finish (i = %d, track = "%s").', i, track)
-        await _wait_for_process(cdparanoia_process, cdparanoia_command, stderr_callback)
-        flac_command = (
-            'flac',
-            '--delete-input-file',
-            '--force',
-            '--replay-gain',
-            '--silent',
-            '--verify',
-            f'--output-name={flac_path!s}',
-            f'--tag=ALBUM={result.album}',
-            f'--tag=ALBUMARTIST={album_artist or result.artist}',
-            f'--tag=ARTIST={result.artist}',
-            f'--tag=GENRE={result.genre}',
-            f'--tag=TITLE={track}',
-            f'--tag=TRACKNUMBER={i:02d}',
-            f'--tag=YEAR={result.year:04d}',
-            str(wav_path),
-        )
-        flac_process = await asyncio.create_subprocess_exec(*flac_command)
-        await _wait_for_process(flac_process, flac_command)
+    cdparanoia_lock = asyncio.Lock()
+    stop_event = asyncio.Event()
+    task_queue: asyncio.Queue[_TrackTask | None] = asyncio.Queue()
+
+    async def _run_cdparanoia() -> None:
+        try:
+            for i, track in enumerate(result.tracks, 1):
+                if stop_event.is_set():
+                    return
+                wav_path = album_dir_path / f'{i:02d}-{result.artist}-{track}.wav'
+                task = _TrackTask(track_number=i,
+                                  track=track,
+                                  wav_path=wav_path,
+                                  flac_path=wav_path.with_suffix('.flac'),
+                                  flac_started=asyncio.Event())
+                cdparanoia_command = _build_cdparanoia_command(drive=drive,
+                                                               never_skip=never_skip,
+                                                               stderr_callback=stderr_callback,
+                                                               task=task)
+                async with cdparanoia_lock:
+                    cdparanoia_process = await asyncio.create_subprocess_exec(
+                        *cdparanoia_command,
+                        stderr=asyncio.subprocess.PIPE if stderr_callback else None,
+                        stdout=asyncio.subprocess.DEVNULL if stderr_callback else None)
+                    log.debug('Waiting for cdparanoia to finish (i = %d, track = "%s").', i, track)
+                    await _wait_for_process(cdparanoia_process, cdparanoia_command, stderr_callback)
+                await task_queue.put(task)
+                await task.flac_started.wait()
+        finally:
+            await task_queue.put(None)
+
+    async def _run_flac() -> None:
+        while task := await task_queue.get():
+            flac_command = _build_flac_command(album_artist=album_artist,
+                                               metadata=result,
+                                               task=task)
+            try:
+                flac_process = await asyncio.create_subprocess_exec(*flac_command)
+            except Exception:
+                stop_event.set()
+                task.flac_started.set()
+                raise
+            task.flac_started.set()
+            try:
+                await _wait_for_process(flac_process, flac_command)
+            except Exception:
+                stop_event.set()
+                raise
+
+    rip_task = asyncio.create_task(_run_cdparanoia())
+    flac_task = asyncio.create_task(_run_flac())
+    errors = await asyncio.gather(rip_task, flac_task, return_exceptions=True)
+    for error in errors:
+        if isinstance(error, Exception):
+            raise error
