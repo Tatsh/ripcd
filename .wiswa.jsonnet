@@ -18,7 +18,6 @@ local utils = import 'utils.libjsonnet';
           click: utils.latestPypiPackageVersionCaret('click'),
           deltona: {
             extras: ['media'],
-            python: '>=3.11,<3.14',
             version: utils.latestPypiPackageVersionCaret('deltona'),
           },
           discid: utils.latestPypiPackageVersionCaret('discid'),
@@ -27,9 +26,6 @@ local utils = import 'utils.libjsonnet';
           niquests: utils.latestPypiPackageVersionCaret('niquests'),
         },
         group+: {
-          dev+: {
-            dependencies+: {},
-          },
           tests+: {
             dependencies+: {
               'pytest-asyncio': utils.latestPypiPackageVersionCaret('pytest-asyncio'),
@@ -39,7 +35,6 @@ local utils = import 'utils.libjsonnet';
       },
     },
   },
-  // github.workflows.appimage.apt_packages
   github+: {
     workflows+: {
       appimage+: {
