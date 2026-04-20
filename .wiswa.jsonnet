@@ -39,6 +39,14 @@ local utils = import 'utils.libjsonnet';
       },
     },
   },
+  // github.workflows.appimage.apt_packages
+  github+: {
+    workflows+: {
+      appimage+: {
+        apt_packages: ['libdiscid-dev'],
+      },
+    },
+  },
   // Required by deltona (transitive dependency: binaryornot).
   pyinstaller+: {
     collect_data: ['binaryornot'],

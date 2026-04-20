@@ -19,6 +19,9 @@ jobs:
           uv sync
           uv pip install pyinstaller
         shell: 'bash'
+      - if: matrix.os == 'macos-latest' || matrix.os == 'macos-15-intel'
+        name: 'Install dependencies'
+        run: brew install libdiscid
       - name: 'Build with PyInstaller'
         run: |
           project_name=$(tomlq -r '.project.urls.repository|split("/")[-1]' pyproject.toml)
