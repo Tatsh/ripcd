@@ -79,6 +79,7 @@ numpy
 numpydoc
 onefile
 oneline
+ostype
 pathlib
 pavelzw
 pipx
