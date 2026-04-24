@@ -96,3 +96,13 @@ def test_ripcd_defaults_never_skip_and_username(mocker: MockerFixture, runner: C
     kwargs = mock_rip.await_args.kwargs
     assert kwargs['never_skip'] == 5
     assert kwargs['username'] is not None
+
+
+def test_default_drive_from_discid(mocker: MockerFixture, runner: CliRunner,
+                                   tmp_path: Path) -> None:
+    drive_path = tmp_path / 'cdrom'
+    drive_path.touch()
+    mocker.patch('ripcd.main.discid.get_default_device', return_value=str(drive_path))
+    mocker.patch('ripcd.main.rip_cdda_to_flac', new_callable=AsyncMock)
+    result = runner.invoke(ripcd, [])
+    assert result.exit_code == 0

@@ -270,6 +270,444 @@ async def test_rip_cdda_to_flac_raises_on_disc_id_failure(mocker: MockerFixture,
 
 
 @pytest.mark.asyncio
+async def test_rip_mb_disc_data_not_mapping_falls_back_to_cddb(mocker: MockerFixture,
+                                                               tmp_path: Path) -> None:
+    mocker.patch('ripcd.rip.discid.read', return_value=_make_disc())
+    mocker.patch('ripcd.rip.musicbrainzngs.set_useragent')
+    mocker.patch('ripcd.rip.musicbrainzngs.get_releases_by_discid',
+                 return_value={'disc': 'not-a-mapping'})
+    cddb_result = CDDBQueryResult(artist='A', album='B', year=2000, genre='g', tracks=('t',))
+    cddb_mock = mocker.patch('ripcd.rip.cddb_query', return_value=cddb_result)
+    mocker.patch('ripcd.rip.asyncio.create_subprocess_exec',
+                 side_effect=[_make_process(), _make_process()])
+    await rip_cdda_to_flac(drive='/dev/cdrom', output_dir=tmp_path, username='user')
+    cddb_mock.assert_called_once()
+
+
+@pytest.mark.asyncio
+async def test_rip_mb_release_not_mapping_falls_back_to_cddb(mocker: MockerFixture,
+                                                             tmp_path: Path) -> None:
+    mocker.patch('ripcd.rip.discid.read', return_value=_make_disc())
+    mocker.patch('ripcd.rip.musicbrainzngs.set_useragent')
+    mocker.patch('ripcd.rip.musicbrainzngs.get_releases_by_discid',
+                 return_value={'disc': {
+                     'release-list': ['not-a-mapping']
+                 }})
+    cddb_result = CDDBQueryResult(artist='A', album='B', year=2000, genre='g', tracks=('t',))
+    cddb_mock = mocker.patch('ripcd.rip.cddb_query', return_value=cddb_result)
+    mocker.patch('ripcd.rip.asyncio.create_subprocess_exec',
+                 side_effect=[_make_process(), _make_process()])
+    await rip_cdda_to_flac(drive='/dev/cdrom', output_dir=tmp_path, username='user')
+    cddb_mock.assert_called_once()
+
+
+@pytest.mark.asyncio
+async def test_rip_mb_no_tracks_falls_back_to_cddb(mocker: MockerFixture, tmp_path: Path) -> None:
+    mocker.patch('ripcd.rip.discid.read', return_value=_make_disc())
+    mocker.patch('ripcd.rip.musicbrainzngs.set_useragent')
+    mocker.patch('ripcd.rip.musicbrainzngs.get_releases_by_discid',
+                 return_value={
+                     'disc': {
+                         'release-list': [{
+                             'artist-credit-phrase': 'A',
+                             'title': 'B',
+                             'date': '2020',
+                             'medium-list': [{
+                                 'track-list': []
+                             }]
+                         }]
+                     }
+                 })
+    cddb_result = CDDBQueryResult(artist='A', album='B', year=2020, genre='g', tracks=('t',))
+    cddb_mock = mocker.patch('ripcd.rip.cddb_query', return_value=cddb_result)
+    mocker.patch('ripcd.rip.asyncio.create_subprocess_exec',
+                 side_effect=[_make_process(), _make_process()])
+    await rip_cdda_to_flac(drive='/dev/cdrom', output_dir=tmp_path, username='user')
+    cddb_mock.assert_called_once()
+
+
+@pytest.mark.asyncio
+async def test_rip_mb_missing_artist_and_album_uses_defaults(mocker: MockerFixture,
+                                                             tmp_path: Path) -> None:
+    mocker.patch('ripcd.rip.discid.read', return_value=_make_disc())
+    mocker.patch('ripcd.rip.musicbrainzngs.set_useragent')
+    mocker.patch('ripcd.rip.musicbrainzngs.get_releases_by_discid',
+                 return_value={
+                     'disc': {
+                         'release-list': [{
+                             'date': '2020',
+                             'medium-list': [{
+                                 'track-list': [{
+                                     'recording': {
+                                         'title': 'Song'
+                                     }
+                                 }]
+                             }]
+                         }]
+                     }
+                 })
+    mocker.patch('ripcd.rip.asyncio.create_subprocess_exec',
+                 side_effect=[_make_process(), _make_process()])
+    await rip_cdda_to_flac(drive='/dev/cdrom', output_dir=tmp_path, username='user')
+    album_dir = tmp_path / 'Unknown Artist-Unknown Album-2020'
+    assert album_dir.exists()
+
+
+@pytest.mark.asyncio
+async def test_rip_mb_tag_list_extracts_genre(mocker: MockerFixture, tmp_path: Path) -> None:
+    mocker.patch('ripcd.rip.discid.read', return_value=_make_disc())
+    mocker.patch('ripcd.rip.musicbrainzngs.set_useragent')
+    mocker.patch('ripcd.rip.musicbrainzngs.get_releases_by_discid',
+                 return_value={
+                     'disc': {
+                         'release-list': [{
+                             'artist-credit-phrase': 'Art',
+                             'title': 'Alb',
+                             'date': '2020',
+                             'tag-list': [{
+                                 'name': 'rock'
+                             }],
+                             'medium-list': [{
+                                 'track-list': [{
+                                     'recording': {
+                                         'title': 'T1'
+                                     }
+                                 }]
+                             }]
+                         }]
+                     }
+                 })
+    mock_create = mocker.patch('ripcd.rip.asyncio.create_subprocess_exec',
+                               side_effect=[_make_process(), _make_process()])
+    await rip_cdda_to_flac(drive='/dev/cdrom', output_dir=tmp_path, username='user')
+    flac_calls = [c.args for c in mock_create.call_args_list if c.args[0] == 'flac']
+    assert any('--tag=GENRE=rock' in c for c in flac_calls)
+
+
+@pytest.mark.asyncio
+async def test_rip_mb_integer_year(mocker: MockerFixture, tmp_path: Path) -> None:
+    mocker.patch('ripcd.rip.discid.read', return_value=_make_disc())
+    mocker.patch('ripcd.rip.musicbrainzngs.set_useragent')
+    mocker.patch('ripcd.rip.musicbrainzngs.get_releases_by_discid',
+                 return_value={
+                     'disc': {
+                         'release-list': [{
+                             'artist-credit-phrase': 'A',
+                             'title': 'B',
+                             'date': 2019,
+                             'medium-list': [{
+                                 'track-list': [{
+                                     'recording': {
+                                         'title': 'T'
+                                     }
+                                 }]
+                             }]
+                         }]
+                     }
+                 })
+    mocker.patch('ripcd.rip.asyncio.create_subprocess_exec',
+                 side_effect=[_make_process(), _make_process()])
+    await rip_cdda_to_flac(drive='/dev/cdrom', output_dir=tmp_path, username='user')
+    assert (tmp_path / 'A-B-2019').exists()
+
+
+@pytest.mark.asyncio
+async def test_rip_mb_none_year(mocker: MockerFixture, tmp_path: Path) -> None:
+    mocker.patch('ripcd.rip.discid.read', return_value=_make_disc())
+    mocker.patch('ripcd.rip.musicbrainzngs.set_useragent')
+    mocker.patch('ripcd.rip.musicbrainzngs.get_releases_by_discid',
+                 return_value={
+                     'disc': {
+                         'release-list': [{
+                             'artist-credit-phrase': 'A',
+                             'title': 'B',
+                             'medium-list': [{
+                                 'track-list': [{
+                                     'recording': {
+                                         'title': 'T'
+                                     }
+                                 }]
+                             }]
+                         }]
+                     }
+                 })
+    mocker.patch('ripcd.rip.asyncio.create_subprocess_exec',
+                 side_effect=[_make_process(), _make_process()])
+    await rip_cdda_to_flac(drive='/dev/cdrom', output_dir=tmp_path, username='user')
+    assert (tmp_path / 'A-B-0').exists()
+
+
+@pytest.mark.asyncio
+async def test_rip_mb_non_digit_year_string(mocker: MockerFixture, tmp_path: Path) -> None:
+    mocker.patch('ripcd.rip.discid.read', return_value=_make_disc())
+    mocker.patch('ripcd.rip.musicbrainzngs.set_useragent')
+    mocker.patch('ripcd.rip.musicbrainzngs.get_releases_by_discid',
+                 return_value={
+                     'disc': {
+                         'release-list': [{
+                             'artist-credit-phrase': 'A',
+                             'title': 'B',
+                             'date': 'unknown',
+                             'medium-list': [{
+                                 'track-list': [{
+                                     'recording': {
+                                         'title': 'T'
+                                     }
+                                 }]
+                             }]
+                         }]
+                     }
+                 })
+    mocker.patch('ripcd.rip.asyncio.create_subprocess_exec',
+                 side_effect=[_make_process(), _make_process()])
+    await rip_cdda_to_flac(drive='/dev/cdrom', output_dir=tmp_path, username='user')
+    assert (tmp_path / 'A-B-0').exists()
+
+
+@pytest.mark.asyncio
+async def test_rip_mb_medium_list_not_list_falls_back(mocker: MockerFixture,
+                                                      tmp_path: Path) -> None:
+    mocker.patch('ripcd.rip.discid.read', return_value=_make_disc())
+    mocker.patch('ripcd.rip.musicbrainzngs.set_useragent')
+    mocker.patch('ripcd.rip.musicbrainzngs.get_releases_by_discid',
+                 return_value={
+                     'disc': {
+                         'release-list': [{
+                             'artist-credit-phrase': 'A',
+                             'title': 'B',
+                             'date': '2020',
+                             'medium-list': 'not-a-list'
+                         }]
+                     }
+                 })
+    cddb_result = CDDBQueryResult(artist='A', album='B', year=2020, genre='g', tracks=('t',))
+    cddb_mock = mocker.patch('ripcd.rip.cddb_query', return_value=cddb_result)
+    mocker.patch('ripcd.rip.asyncio.create_subprocess_exec',
+                 side_effect=[_make_process(), _make_process()])
+    await rip_cdda_to_flac(drive='/dev/cdrom', output_dir=tmp_path, username='user')
+    cddb_mock.assert_called_once()
+
+
+@pytest.mark.asyncio
+async def test_rip_mb_medium_not_dict_skipped(mocker: MockerFixture, tmp_path: Path) -> None:
+    mocker.patch('ripcd.rip.discid.read', return_value=_make_disc())
+    mocker.patch('ripcd.rip.musicbrainzngs.set_useragent')
+    mocker.patch('ripcd.rip.musicbrainzngs.get_releases_by_discid',
+                 return_value={
+                     'disc': {
+                         'release-list': [{
+                             'artist-credit-phrase': 'A',
+                             'title': 'B',
+                             'date': '2020',
+                             'medium-list': ['not-a-dict']
+                         }]
+                     }
+                 })
+    cddb_result = CDDBQueryResult(artist='A', album='B', year=2020, genre='g', tracks=('t',))
+    cddb_mock = mocker.patch('ripcd.rip.cddb_query', return_value=cddb_result)
+    mocker.patch('ripcd.rip.asyncio.create_subprocess_exec',
+                 side_effect=[_make_process(), _make_process()])
+    await rip_cdda_to_flac(drive='/dev/cdrom', output_dir=tmp_path, username='user')
+    cddb_mock.assert_called_once()
+
+
+@pytest.mark.asyncio
+async def test_rip_mb_track_list_not_list_skipped(mocker: MockerFixture, tmp_path: Path) -> None:
+    mocker.patch('ripcd.rip.discid.read', return_value=_make_disc())
+    mocker.patch('ripcd.rip.musicbrainzngs.set_useragent')
+    mocker.patch('ripcd.rip.musicbrainzngs.get_releases_by_discid',
+                 return_value={
+                     'disc': {
+                         'release-list': [{
+                             'artist-credit-phrase': 'A',
+                             'title': 'B',
+                             'date': '2020',
+                             'medium-list': [{
+                                 'track-list': 'not-a-list'
+                             }]
+                         }]
+                     }
+                 })
+    cddb_result = CDDBQueryResult(artist='A', album='B', year=2020, genre='g', tracks=('t',))
+    cddb_mock = mocker.patch('ripcd.rip.cddb_query', return_value=cddb_result)
+    mocker.patch('ripcd.rip.asyncio.create_subprocess_exec',
+                 side_effect=[_make_process(), _make_process()])
+    await rip_cdda_to_flac(drive='/dev/cdrom', output_dir=tmp_path, username='user')
+    cddb_mock.assert_called_once()
+
+
+@pytest.mark.asyncio
+async def test_rip_mb_track_not_dict_skipped(mocker: MockerFixture, tmp_path: Path) -> None:
+    mocker.patch('ripcd.rip.discid.read', return_value=_make_disc())
+    mocker.patch('ripcd.rip.musicbrainzngs.set_useragent')
+    mocker.patch('ripcd.rip.musicbrainzngs.get_releases_by_discid',
+                 return_value={
+                     'disc': {
+                         'release-list': [{
+                             'artist-credit-phrase': 'A',
+                             'title': 'B',
+                             'date': '2020',
+                             'medium-list': [{
+                                 'track-list': ['not-a-dict']
+                             }]
+                         }]
+                     }
+                 })
+    cddb_result = CDDBQueryResult(artist='A', album='B', year=2020, genre='g', tracks=('t',))
+    cddb_mock = mocker.patch('ripcd.rip.cddb_query', return_value=cddb_result)
+    mocker.patch('ripcd.rip.asyncio.create_subprocess_exec',
+                 side_effect=[_make_process(), _make_process()])
+    await rip_cdda_to_flac(drive='/dev/cdrom', output_dir=tmp_path, username='user')
+    cddb_mock.assert_called_once()
+
+
+@pytest.mark.asyncio
+async def test_rip_mb_track_title_from_track_map_fallback(mocker: MockerFixture,
+                                                          tmp_path: Path) -> None:
+    mocker.patch('ripcd.rip.discid.read', return_value=_make_disc())
+    mocker.patch('ripcd.rip.musicbrainzngs.set_useragent')
+    mocker.patch('ripcd.rip.musicbrainzngs.get_releases_by_discid',
+                 return_value={
+                     'disc': {
+                         'release-list': [{
+                             'artist-credit-phrase': 'A',
+                             'title': 'B',
+                             'date': '2020',
+                             'medium-list': [{
+                                 'track-list': [{
+                                     'title': 'FallbackTitle'
+                                 }]
+                             }]
+                         }]
+                     }
+                 })
+    mocker.patch('ripcd.rip.asyncio.create_subprocess_exec',
+                 side_effect=[_make_process(), _make_process()])
+    await rip_cdda_to_flac(drive='/dev/cdrom', output_dir=tmp_path, username='user')
+    assert (tmp_path / 'A-B-2020').exists()
+
+
+@pytest.mark.asyncio
+async def test_rip_mb_recording_not_dict_uses_track_title(mocker: MockerFixture,
+                                                          tmp_path: Path) -> None:
+    mocker.patch('ripcd.rip.discid.read', return_value=_make_disc())
+    mocker.patch('ripcd.rip.musicbrainzngs.set_useragent')
+    mocker.patch('ripcd.rip.musicbrainzngs.get_releases_by_discid',
+                 return_value={
+                     'disc': {
+                         'release-list': [{
+                             'artist-credit-phrase':
+                                 'A',
+                             'title':
+                                 'B',
+                             'date':
+                                 '2020',
+                             'medium-list': [{
+                                 'track-list': [{
+                                     'recording': 'not-a-dict',
+                                     'title': 'TrackTitle'
+                                 }]
+                             }]
+                         }]
+                     }
+                 })
+    mocker.patch('ripcd.rip.asyncio.create_subprocess_exec',
+                 side_effect=[_make_process(), _make_process()])
+    await rip_cdda_to_flac(drive='/dev/cdrom', output_dir=tmp_path, username='user')
+    assert (tmp_path / 'A-B-2020').exists()
+
+
+@pytest.mark.asyncio
+async def test_rip_mb_track_title_fallback_then_continues_loop(mocker: MockerFixture,
+                                                               tmp_path: Path) -> None:
+    mocker.patch('ripcd.rip.discid.read', return_value=_make_disc())
+    mocker.patch('ripcd.rip.musicbrainzngs.set_useragent')
+    mocker.patch('ripcd.rip.musicbrainzngs.get_releases_by_discid',
+                 return_value={
+                     'disc': {
+                         'release-list': [{
+                             'artist-credit-phrase':
+                                 'A',
+                             'title':
+                                 'B',
+                             'date':
+                                 '2020',
+                             'medium-list': [{
+                                 'track-list': [{
+                                     'title': 'Fallback1'
+                                 }, {
+                                     'title': 'Fallback2'
+                                 }, {
+                                     'recording': {
+                                         'title': 'Normal'
+                                     }
+                                 }]
+                             }]
+                         }]
+                     }
+                 })
+    mocker.patch('ripcd.rip.asyncio.create_subprocess_exec',
+                 side_effect=[
+                     _make_process(),
+                     _make_process(),
+                     _make_process(),
+                     _make_process(),
+                     _make_process(),
+                     _make_process()
+                 ])
+    await rip_cdda_to_flac(drive='/dev/cdrom', output_dir=tmp_path, username='user')
+    assert (tmp_path / 'A-B-2020').exists()
+
+
+@pytest.mark.asyncio
+async def test_rip_mb_tag_list_empty_name_uses_default_genre(mocker: MockerFixture,
+                                                             tmp_path: Path) -> None:
+    mocker.patch('ripcd.rip.discid.read', return_value=_make_disc())
+    mocker.patch('ripcd.rip.musicbrainzngs.set_useragent')
+    mocker.patch('ripcd.rip.musicbrainzngs.get_releases_by_discid',
+                 return_value={
+                     'disc': {
+                         'release-list': [{
+                             'artist-credit-phrase': 'A',
+                             'title': 'B',
+                             'date': '2020',
+                             'tag-list': [{
+                                 'name': ''
+                             }],
+                             'medium-list': [{
+                                 'track-list': [{
+                                     'recording': {
+                                         'title': 'T'
+                                     }
+                                 }]
+                             }]
+                         }]
+                     }
+                 })
+    mock_create = mocker.patch('ripcd.rip.asyncio.create_subprocess_exec',
+                               side_effect=[_make_process(), _make_process()])
+    await rip_cdda_to_flac(drive='/dev/cdrom', output_dir=tmp_path, username='user')
+    flac_calls = [c.args for c in mock_create.call_args_list if c.args[0] == 'flac']
+    assert any('--tag=GENRE=Unknown' in c for c in flac_calls)
+
+
+@pytest.mark.asyncio
+async def test_rip_flac_spawn_failure_sets_stop_event(mocker: MockerFixture,
+                                                      tmp_path: Path) -> None:
+    mocker.patch('ripcd.rip.discid.read', return_value=_make_disc())
+    _patch_musicbrainz_success(mocker,
+                               artist='A',
+                               album='B',
+                               track_titles=('T1', 'T2'),
+                               year_date='2020')
+    mocker.patch('ripcd.rip.cddb_query')
+    mocker.patch('ripcd.rip.asyncio.create_subprocess_exec',
+                 side_effect=[_make_process(), OSError('spawn failed')])
+    with pytest.raises(OSError, match='spawn failed'):
+        await rip_cdda_to_flac(drive='/dev/cdrom', output_dir=tmp_path, username='user')
+
+
+@pytest.mark.asyncio
 async def test_rip_cdda_to_flac_raises_on_flac_failure(mocker: MockerFixture,
                                                        tmp_path: Path) -> None:
     mocker.patch('ripcd.rip.discid.read', return_value=_make_disc())

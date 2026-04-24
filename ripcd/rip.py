@@ -74,7 +74,7 @@ def _extract_track_titles(release: Mapping[str, object]) -> tuple[str, ...]:
             if recording_map is not None and isinstance((title := recording_map.get('title')), str):
                 tracks.append(title)
                 continue
-            if isinstance((title := track_map.get('title')), str):
+            if isinstance((title := track_map.get('title')), str):  # pragma: no branch
                 tracks.append(title)
     return tuple(tracks)
 

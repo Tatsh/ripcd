@@ -2,32 +2,23 @@
 
 from __future__ import annotations
 
-from importlib import import_module
 from pathlib import Path
-from typing import TYPE_CHECKING, cast
 import asyncio
 import getpass
 import subprocess as sp
 
 from bascom import setup_logging
 import click
+import discid  # type: ignore[import-untyped]  # Third-party package does not ship typing metadata.
 import niquests
 
 from .rip import rip_cdda_to_flac
-
-if TYPE_CHECKING:
-    from collections.abc import Callable
 
 __all__ = ('main',)
 
 
 def _get_default_drive() -> str:
-    try:
-        discid = import_module('discid')
-    except (ImportError, OSError):
-        return '/dev/sr0'
-    get_default_device = cast('Callable[[], str]', discid.get_default_device)
-    return get_default_device()
+    return discid.get_default_device()  # type: ignore[no-any-return]  # Untyped third-party.
 
 
 @click.command(context_settings={'help_option_names': ('-h', '--help')})
