@@ -27,17 +27,15 @@ level margin: \\n[rst2man-indent\\n[rst2man-indent-level]]
 .\" new: \\n[rst2man-indent\\n[rst2man-indent-level]]
 .in \\n[rst2man-indent\\n[rst2man-indent-level]]u
 ..
-.TH "RIPCD" "1" "Mar 21, 2026" "0.0.1" "ripcd"
+.TH "RIPCD" "1" "Apr 24, 2026" "0.0.2" "ripcd"
 .SH NAME
-ripcd \- ripcd v0.0.1
+ripcd \- ripcd v0.0.2
 .sp
 Rip audio CDs to FLAC, with metadata. Requires \fBcdparanoia\fP and \fBflac\fP in PATH.
 .SH COMMANDS
 .SS ripcd
 .sp
-Rip an audio disc to FLAC files.
-.sp
-Requires cdparanoia and flac to be in PATH.
+Rip an audio disc to FLAC files; requires cdparanoia and flac in PATH.
 .sp
 Usage
 .INDENT 0.0
@@ -54,6 +52,11 @@ Options
 .TP
 .B \-D, \-\-drive <drive>
 Optical drive path.
+.INDENT 7.0
+.TP
+.B Default
+\fB\(aqplatform default from libdiscid\(aq\fP
+.UNINDENT
 .UNINDENT
 .INDENT 0.0
 .TP
@@ -68,7 +71,7 @@ Album artist override.
 .INDENT 0.0
 .TP
 .B \-\-album\-dir <album_dir>
-Album directory name. Defaults to artist\-album\-year format.
+Album directory name. Defaults to the artist\-album\-year format.
 .UNINDENT
 .INDENT 0.0
 .TP
@@ -88,7 +91,7 @@ Enable debug output.
 .INDENT 0.0
 .TP
 .B \-o, \-\-output\-dir <output_dir>
-Parent directory for album_dir. Defaults to current directory.
+Parent directory for album_dir. Defaults to the current directory.
 .UNINDENT
 .INDENT 0.0
 .TP

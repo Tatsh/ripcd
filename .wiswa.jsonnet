@@ -5,7 +5,7 @@ local utils = import 'utils.libjsonnet';
   description: 'Rip audio CDs to FLAC, with metadata.',
   keywords: ['cd', 'cddb', 'flac', 'rip'],
   project_name: 'ripcd',
-  version: '0.0.1',
+  version: '0.0.2',
   want_main: true,
   want_flatpak: true,
   publishing+: { flathub: 'sh.tat.ripcd' },

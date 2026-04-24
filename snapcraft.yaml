@@ -30,5 +30,5 @@ platforms:
 source-code: 'https://github.com/Tatsh/ripcd'
 summary: 'Rip audio CDs to FLAC, with metadata.'
 title: 'ripcd'
-version: '0.0.1'
+version: '0.0.2'
 website: 'https://tatsh.github.io/ripcd/'
