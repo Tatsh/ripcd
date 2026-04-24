@@ -40,6 +40,20 @@ local utils = import 'utils.libjsonnet';
       appimage+: {
         apt_packages: ['libdiscid-dev'],
       },
+      codeql+: {
+        apt_packages: ['libdiscid-dev'],
+      },
+      qa+: {
+        apt_packages: ['libdiscid-dev'],
+      },
+      tests+: {
+        apt_packages: ['libdiscid-dev'],
+      },
+    },
+  },
+  readthedocs+: {
+    build+: {
+      apt_packages: ['libdiscid-dev'],
     },
   },
   // Required by deltona (transitive dependency: binaryornot).

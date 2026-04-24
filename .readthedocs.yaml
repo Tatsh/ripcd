@@ -1,5 +1,6 @@
 build:
-  apt_packages: []
+  apt_packages:
+    - 'libdiscid-dev'
   jobs:
     post_install:
       - 'pip install uv'
