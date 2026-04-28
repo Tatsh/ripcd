@@ -56,19 +56,19 @@ def _extract_track_titles(release: Mapping[str, object]) -> tuple[str, ...]:
     if not isinstance(medium_list, list):
         return ()
     for medium in medium_list:
-        if not isinstance(medium, dict):
+        if not isinstance(medium, Mapping):
             continue
-        medium_map = cast('dict[str, object]', medium)
+        medium_map = cast('Mapping[str, object]', medium)
         track_list = medium_map.get('track-list')
         if not isinstance(track_list, list):
             continue
         for track in track_list:
-            if not isinstance(track, dict):
+            if not isinstance(track, Mapping):
                 continue
-            track_map = cast('dict[str, object]', track)
+            track_map = cast('Mapping[str, object]', track)
             recording = track_map.get('recording')
-            if isinstance(recording, dict):
-                recording_map = cast('dict[str, object]', recording)
+            if isinstance(recording, Mapping):
+                recording_map = cast('Mapping[str, object]', recording)
             else:
                 recording_map = None
             if recording_map is not None and isinstance((title := recording_map.get('title')), str):
@@ -108,8 +108,8 @@ def _query_musicbrainz(disc_id: str) -> _AlbumMetadata | None:
     year = _coerce_year(release.get('date'))
     genre = 'Unknown'
     tag_list = release.get('tag-list')
-    if isinstance(tag_list, list) and tag_list and isinstance(tag_list[0], dict):
-        first_name = cast('dict[str, object]', tag_list[0]).get('name')
+    if isinstance(tag_list, list) and tag_list and isinstance(tag_list[0], Mapping):
+        first_name = cast('Mapping[str, object]', tag_list[0]).get('name')
         if isinstance(first_name, str) and first_name:
             genre = first_name
     return _AlbumMetadata(artist=artist, album=album, year=year, genre=genre, tracks=tracks)
