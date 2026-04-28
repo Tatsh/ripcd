@@ -78,6 +78,7 @@ npmjs
 numpy
 onefile
 oneline
+ostype
 pathlib
 pavelzw
 pipx
