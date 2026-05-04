@@ -76,10 +76,10 @@ html_theme_options = {
     'toc_title_is_page_title': True
 }
 intersphinx_mapping = {
-    'python': ('https://docs.python.org/3', None),
     'bascom': ('https://bascom.readthedocs.io/en/latest/', None),
     'click': ('https://click.palletsprojects.com/en/latest/', None),
     'deltona': ('https://deltona.readthedocs.io/en/latest/', None),
-    'requests': ('https://requests.readthedocs.io/en/latest/', None),
+    'niquests': ('https://niquests.readthedocs.io/en/latest/', None),
+    'python': ('https://docs.python.org/3', None),
     'typing-extensions': ('https://typing-extensions.readthedocs.io/en/latest/', None)
 }
