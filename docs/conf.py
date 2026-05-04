@@ -76,9 +76,12 @@ html_theme_options = {
     'toc_title_is_page_title': True
 }
 intersphinx_mapping = {
+    'anyio': ('https://anyio.readthedocs.io/en/stable/', None),
     'bascom': ('https://bascom.readthedocs.io/en/latest/', None),
     'click': ('https://click.palletsprojects.com/en/latest/', None),
     'deltona': ('https://deltona.readthedocs.io/en/latest/', None),
+    'discid': ('https://python-discid.readthedocs.io/en/latest/', None),
+    'musicbrainzngs': ('https://python-musicbrainzngs.readthedocs.io/en/v0.7.1/', None),
     'niquests': ('https://niquests.readthedocs.io/en/latest/', None),
     'python': ('https://docs.python.org/3', None),
     'typing-extensions': ('https://typing-extensions.readthedocs.io/en/latest/', None)
