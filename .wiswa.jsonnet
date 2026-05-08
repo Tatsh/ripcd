@@ -5,7 +5,7 @@ local utils = import 'utils.libjsonnet';
   description: 'Rip audio CDs to FLAC, with metadata.',
   keywords: ['cd', 'cddb', 'flac', 'rip'],
   project_name: 'ripcd',
-  version: '0.0.2',
+  version: '0.0.3',
   want_main: true,
   want_flatpak: true,
   publishing+: { flathub: 'sh.tat.ripcd' },
@@ -59,5 +59,34 @@ local utils = import 'utils.libjsonnet';
   // Required by deltona (transitive dependency: binaryornot).
   pyinstaller+: {
     collect_data: ['binaryornot'],
+  },
+  snapcraft+: {
+    parts+: {
+      ripcd+: {
+        source: 'https://github.com/Tatsh/ripcd.git',
+        'source-tag': 'v0.0.3',
+        'source-type': 'git',
+      },
+    },
+  },
+  flatpak+: {
+    modules: [
+      {
+        name: 'ripcd',
+        buildsystem: 'simple',
+        'build-options': { 'build-args': ['--share=network'] },
+        'build-commands': [
+          'pip3 install --prefix=/app uv',
+          '/app/bin/uv pip install --prefix=/app .',
+        ],
+        sources: [
+          {
+            type: 'git',
+            url: 'https://github.com/Tatsh/ripcd.git',
+            tag: 'v0.0.3',
+          },
+        ],
+      },
+    ],
   },
 }

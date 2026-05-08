@@ -9,6 +9,20 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [0.0.3] - 2026-05-08
+
+### Changed
+
+- Use `Mapping` over `dict` in MusicBrainz response casts.
+- Bump runtime dependency `click` to 8.3.3.
+- Bump transitive runtime dependency `ip-address` to 10.1.1.
+- Update intersphinx mapping in `docs/conf.py` (now also covers `anyio`, `discid`, and
+  `musicbrainzngs`).
+- Refresh development tooling: bumps to `cspell`, `markdownlint-cli2`, and other dev-group
+  packages; refresh GitHub Actions (`github/codeql-action`).
+- Build `snapcraft.yaml` and the Flatpak manifest from the published git tag rather than the local
+  checkout.
+
 ## [0.0.2] - 2026-04-24
 
 ### Added
@@ -38,6 +52,7 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - Rip audio CDs to FLAC with CDDB metadata.
 - CLI with options for drive path, CDDB host, album artist override, and output directory.
 
-[Unreleased]: https://github.com/Tatsh/ripcd/compare/v0.0.2...HEAD
+[Unreleased]: https://github.com/Tatsh/ripcd/compare/v0.0.3...HEAD
+[0.0.3]: https://github.com/Tatsh/ripcd/compare/v0.0.2...v0.0.3
 [0.0.2]: https://github.com/Tatsh/ripcd/compare/v0.0.1...v0.0.2
 [0.0.1]: https://github.com/Tatsh/ripcd/releases/tag/v0.0.1

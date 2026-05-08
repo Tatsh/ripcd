@@ -20,7 +20,9 @@ parts:
     plugin: 'python'
     python-packages:
       - '.'
-    source: '.'
+    source: 'https://github.com/Tatsh/ripcd.git'
+    source-tag: 'v0.0.3'
+    source-type: 'git'
     stage-packages: []
 platforms:
   amd64:
@@ -30,5 +32,5 @@ platforms:
 source-code: 'https://github.com/Tatsh/ripcd'
 summary: 'Rip audio CDs to FLAC, with metadata.'
 title: 'ripcd'
-version: '0.0.2'
+version: '0.0.3'
 website: 'https://tatsh.github.io/ripcd/'

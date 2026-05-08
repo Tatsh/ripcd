@@ -15,8 +15,9 @@ modules:
     buildsystem: 'simple'
     name: 'ripcd'
     sources:
-      - path: '.'
-        type: 'dir'
+      - tag: 'v0.0.3'
+        type: 'git'
+        url: 'https://github.com/Tatsh/ripcd.git'
 runtime: 'org.freedesktop.Platform'
 runtime-version: '24.08'
 sdk: 'org.freedesktop.Sdk'

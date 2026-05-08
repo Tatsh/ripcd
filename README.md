@@ -6,7 +6,7 @@
 [![PyPI - Version](https://img.shields.io/pypi/v/ripcd)](https://pypi.org/project/ripcd/)
 [![GitHub tag (with filter)](https://img.shields.io/github/v/tag/Tatsh/ripcd)](https://github.com/Tatsh/ripcd/tags)
 [![License](https://img.shields.io/github/license/Tatsh/ripcd)](https://github.com/Tatsh/ripcd/blob/master/LICENSE.txt)
-[![GitHub commits since latest release (by SemVer including pre-releases)](https://img.shields.io/github/commits-since/Tatsh/ripcd/v0.0.2/master)](https://github.com/Tatsh/ripcd/compare/v0.0.2...master)
+[![GitHub commits since latest release (by SemVer including pre-releases)](https://img.shields.io/github/commits-since/Tatsh/ripcd/v0.0.3/master)](https://github.com/Tatsh/ripcd/compare/v0.0.3...master)
 [![CodeQL](https://github.com/Tatsh/ripcd/actions/workflows/codeql.yml/badge.svg)](https://github.com/Tatsh/ripcd/actions/workflows/codeql.yml)
 [![QA](https://github.com/Tatsh/ripcd/actions/workflows/qa.yml/badge.svg)](https://github.com/Tatsh/ripcd/actions/workflows/qa.yml)
 [![Tests](https://github.com/Tatsh/ripcd/actions/workflows/tests.yml/badge.svg)](https://github.com/Tatsh/ripcd/actions/workflows/tests.yml)
