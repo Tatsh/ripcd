@@ -120,13 +120,13 @@ def _read_disc(drive: StrPath) -> _Disc:
     return read_disc(str(drive))
 
 
-def _query_cddb(*, accept_first_cddb_match: bool, cddb_host: str | None, cddb_query_string: str,
-                username: str | None) -> _AlbumMetadata:
-    result = cddb_query(cddb_query_string,
-                        app='ripcd rip_cdda',
-                        accept_first_match=accept_first_cddb_match,
-                        host=cddb_host,
-                        username=username)
+async def _query_cddb(*, accept_first_cddb_match: bool, cddb_host: str | None,
+                      cddb_query_string: str, username: str | None) -> _AlbumMetadata:
+    result = await cddb_query(cddb_query_string,
+                              app='ripcd rip_cdda',
+                              accept_first_match=accept_first_cddb_match,
+                              host=cddb_host,
+                              username=username)
     return _AlbumMetadata(artist=result.artist,
                           album=result.album,
                           year=result.year,
@@ -230,11 +230,10 @@ async def rip_cdda_to_flac(drive: StrPath,
     result = await asyncio.to_thread(_query_musicbrainz, disc.id)
     if result is None:
         try:
-            result = await asyncio.to_thread(_query_cddb,
-                                             accept_first_cddb_match=accept_first_cddb_match,
-                                             cddb_host=cddb_host,
-                                             cddb_query_string=disc.cddb_query_string,
-                                             username=username)
+            result = await _query_cddb(accept_first_cddb_match=accept_first_cddb_match,
+                                       cddb_host=cddb_host,
+                                       cddb_query_string=disc.cddb_query_string,
+                                       username=username)
         except Exception as e:
             msg = 'Failed to query metadata from MusicBrainz and CDDB.'
             raise RuntimeError(msg) from e

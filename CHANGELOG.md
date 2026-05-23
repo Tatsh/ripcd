@@ -9,6 +9,14 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Fixed
+
+- Restored the CDDB metadata fallback in `rip_cdda_to_flac` when `deltona` 0.2 or newer is
+  installed; `_query_cddb` is now asynchronous and awaits `deltona.media.cddb_query`, which became
+  a coroutine function in that release and previously raised
+  `AttributeError: 'coroutine' object has no attribute 'artist'` whenever MusicBrainz returned no
+  match.
+
 ## [0.0.3] - 2026-05-08
 
 ### Changed
