@@ -5,7 +5,7 @@ local utils = import 'utils.libjsonnet';
   description: 'Rip audio CDs to FLAC, with metadata.',
   keywords: ['cd', 'cddb', 'flac', 'rip'],
   project_name: 'ripcd',
-  version: '0.0.3',
+  version: '0.0.4',
   want_main: true,
   want_flatpak: true,
   publishing+: { flathub: 'sh.tat.ripcd' },
@@ -64,7 +64,7 @@ local utils = import 'utils.libjsonnet';
     parts+: {
       ripcd+: {
         source: 'https://github.com/Tatsh/ripcd.git',
-        'source-tag': 'v0.0.3',
+        'source-tag': 'v0.0.4',
         'source-type': 'git',
       },
     },
@@ -83,7 +83,7 @@ local utils = import 'utils.libjsonnet';
           {
             type: 'git',
             url: 'https://github.com/Tatsh/ripcd.git',
-            tag: 'v0.0.3',
+            tag: 'v0.0.4',
           },
         ],
       },

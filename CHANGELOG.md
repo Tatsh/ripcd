@@ -9,6 +9,8 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [0.0.4] - 2026-05-23
+
 ### Fixed
 
 - Restored the CDDB metadata fallback in `rip_cdda_to_flac` when `deltona` 0.2 or newer is
@@ -60,7 +62,8 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - Rip audio CDs to FLAC with CDDB metadata.
 - CLI with options for drive path, CDDB host, album artist override, and output directory.
 
-[Unreleased]: https://github.com/Tatsh/ripcd/compare/v0.0.3...HEAD
+[Unreleased]: https://github.com/Tatsh/ripcd/compare/v0.0.4...HEAD
+[0.0.4]: https://github.com/Tatsh/ripcd/compare/v0.0.3...v0.0.4
 [0.0.3]: https://github.com/Tatsh/ripcd/compare/v0.0.2...v0.0.3
 [0.0.2]: https://github.com/Tatsh/ripcd/compare/v0.0.1...v0.0.2
 [0.0.1]: https://github.com/Tatsh/ripcd/releases/tag/v0.0.1
