@@ -75,7 +75,7 @@ async def test_rip_cdda_to_flac_creates_album_dir_and_flac_files(mocker: MockerF
                                                                  tmp_path: Path) -> None:
     mocker.patch('ripcd.rip.discid.read', return_value=_make_disc())
     _patch_musicbrainz_success(mocker)
-    cddb_mock = mocker.patch('ripcd.rip.cddb_query')
+    cddb_mock = mocker.patch('ripcd.rip.cddb_query', new_callable=AsyncMock)
     mock_create_subprocess = mocker.patch(
         'ripcd.rip.asyncio.create_subprocess_exec',
         side_effect=[_make_process(),
@@ -97,7 +97,7 @@ async def test_rip_cdda_to_flac_starts_next_rip_after_flac_starts(mocker: Mocker
                                                                   tmp_path: Path) -> None:
     mocker.patch('ripcd.rip.discid.read', return_value=_make_disc())
     _patch_musicbrainz_success(mocker)
-    mocker.patch('ripcd.rip.cddb_query')
+    mocker.patch('ripcd.rip.cddb_query', new_callable=AsyncMock)
     mock_create_subprocess = mocker.patch(
         'ripcd.rip.asyncio.create_subprocess_exec',
         side_effect=[_make_process(),
@@ -118,7 +118,7 @@ async def test_rip_cdda_to_flac_album_artist_override(mocker: MockerFixture,
                                album='Album',
                                track_titles=('T1',),
                                year_date='2022')
-    mocker.patch('ripcd.rip.cddb_query')
+    mocker.patch('ripcd.rip.cddb_query', new_callable=AsyncMock)
     mocker.patch('ripcd.rip.asyncio.create_subprocess_exec',
                  side_effect=[_make_process(), _make_process()])
     album_dir = tmp_path / 'Override-Album-2022'
@@ -139,7 +139,7 @@ async def test_rip_cdda_to_flac_calls_stderr_callback(mocker: MockerFixture,
                                album='B',
                                track_titles=('T1',),
                                year_date='2021')
-    mocker.patch('ripcd.rip.cddb_query')
+    mocker.patch('ripcd.rip.cddb_query', new_callable=AsyncMock)
     cdparanoia_process = _make_process()
     cdparanoia_process.stderr = mocker.Mock()
     cdparanoia_process.stderr.readline = AsyncMock(side_effect=[b'progress line\n', b'\n', b''])
@@ -162,7 +162,7 @@ async def test_rip_cdda_to_flac_raises_on_stderr_none(mocker: MockerFixture,
                                album='B',
                                track_titles=('T1',),
                                year_date='2021')
-    mocker.patch('ripcd.rip.cddb_query')
+    mocker.patch('ripcd.rip.cddb_query', new_callable=AsyncMock)
     mocker.patch('ripcd.rip.asyncio.create_subprocess_exec', return_value=_make_process())
     with pytest.raises(TypeError, match='stderr is None'):
         await rip_cdda_to_flac(drive='/dev/cdrom',
@@ -180,7 +180,7 @@ async def test_rip_cdda_to_flac_raises_on_cdparanoia_failure(mocker: MockerFixtu
                                album='B',
                                track_titles=('T1',),
                                year_date='2021')
-    mocker.patch('ripcd.rip.cddb_query')
+    mocker.patch('ripcd.rip.cddb_query', new_callable=AsyncMock)
     mocker.patch('ripcd.rip.asyncio.create_subprocess_exec', return_value=_make_process(code=1))
     with pytest.raises(sp.CalledProcessError):
         await rip_cdda_to_flac(drive='/dev/cdrom', output_dir=tmp_path, username='user')
@@ -199,7 +199,9 @@ async def test_rip_cdda_to_flac_falls_back_to_cddb(mocker: MockerFixture, tmp_pa
                                   year=2020,
                                   genre='Rock',
                                   tracks=('T1',))
-    cddb_mock = mocker.patch('ripcd.rip.cddb_query', return_value=cddb_result)
+    cddb_mock = mocker.patch('ripcd.rip.cddb_query',
+                             new_callable=AsyncMock,
+                             return_value=cddb_result)
     mocker.patch('ripcd.rip.asyncio.create_subprocess_exec',
                  side_effect=[_make_process(), _make_process()])
     await rip_cdda_to_flac(drive='/dev/cdrom', output_dir=tmp_path, username='user')
@@ -222,7 +224,9 @@ async def test_rip_cdda_to_flac_cddb_fallback_honours_accept_first(mocker: Mocke
                      'release-list': []
                  }})
     cddb_result = CDDBQueryResult(artist='A', album='B', year=2000, genre='g', tracks=('t',))
-    cddb_mock = mocker.patch('ripcd.rip.cddb_query', return_value=cddb_result)
+    cddb_mock = mocker.patch('ripcd.rip.cddb_query',
+                             new_callable=AsyncMock,
+                             return_value=cddb_result)
     mocker.patch('ripcd.rip.asyncio.create_subprocess_exec',
                  side_effect=[_make_process(), _make_process()])
     await rip_cdda_to_flac(drive='/dev/cdrom',
@@ -240,7 +244,9 @@ async def test_rip_cdda_to_flac_musicbrainz_exception_falls_back_to_cddb(
     mocker.patch('ripcd.rip.musicbrainzngs.get_releases_by_discid',
                  side_effect=ConnectionError('unreachable'))
     cddb_result = CDDBQueryResult(artist='X', album='Y', year=1999, genre='Pop', tracks=('One',))
-    cddb_mock = mocker.patch('ripcd.rip.cddb_query', return_value=cddb_result)
+    cddb_mock = mocker.patch('ripcd.rip.cddb_query',
+                             new_callable=AsyncMock,
+                             return_value=cddb_result)
     mocker.patch('ripcd.rip.asyncio.create_subprocess_exec',
                  side_effect=[_make_process(), _make_process()])
     await rip_cdda_to_flac(drive='/dev/cdrom', output_dir=tmp_path, username='user')
@@ -256,7 +262,9 @@ async def test_rip_cdda_to_flac_raises_on_metadata_failure(mocker: MockerFixture
                  return_value={'disc': {
                      'release-list': []
                  }})
-    mocker.patch('ripcd.rip.cddb_query', side_effect=RuntimeError('network down'))
+    mocker.patch('ripcd.rip.cddb_query',
+                 new_callable=AsyncMock,
+                 side_effect=RuntimeError('network down'))
     with pytest.raises(RuntimeError, match=r'Failed to query metadata from MusicBrainz and CDDB\.'):
         await rip_cdda_to_flac(drive='/dev/cdrom', output_dir=tmp_path, username='user')
 
@@ -277,7 +285,9 @@ async def test_rip_mb_disc_data_not_mapping_falls_back_to_cddb(mocker: MockerFix
     mocker.patch('ripcd.rip.musicbrainzngs.get_releases_by_discid',
                  return_value={'disc': 'not-a-mapping'})
     cddb_result = CDDBQueryResult(artist='A', album='B', year=2000, genre='g', tracks=('t',))
-    cddb_mock = mocker.patch('ripcd.rip.cddb_query', return_value=cddb_result)
+    cddb_mock = mocker.patch('ripcd.rip.cddb_query',
+                             new_callable=AsyncMock,
+                             return_value=cddb_result)
     mocker.patch('ripcd.rip.asyncio.create_subprocess_exec',
                  side_effect=[_make_process(), _make_process()])
     await rip_cdda_to_flac(drive='/dev/cdrom', output_dir=tmp_path, username='user')
@@ -294,7 +304,9 @@ async def test_rip_mb_release_not_mapping_falls_back_to_cddb(mocker: MockerFixtu
                      'release-list': ['not-a-mapping']
                  }})
     cddb_result = CDDBQueryResult(artist='A', album='B', year=2000, genre='g', tracks=('t',))
-    cddb_mock = mocker.patch('ripcd.rip.cddb_query', return_value=cddb_result)
+    cddb_mock = mocker.patch('ripcd.rip.cddb_query',
+                             new_callable=AsyncMock,
+                             return_value=cddb_result)
     mocker.patch('ripcd.rip.asyncio.create_subprocess_exec',
                  side_effect=[_make_process(), _make_process()])
     await rip_cdda_to_flac(drive='/dev/cdrom', output_dir=tmp_path, username='user')
@@ -319,7 +331,9 @@ async def test_rip_mb_no_tracks_falls_back_to_cddb(mocker: MockerFixture, tmp_pa
                      }
                  })
     cddb_result = CDDBQueryResult(artist='A', album='B', year=2020, genre='g', tracks=('t',))
-    cddb_mock = mocker.patch('ripcd.rip.cddb_query', return_value=cddb_result)
+    cddb_mock = mocker.patch('ripcd.rip.cddb_query',
+                             new_callable=AsyncMock,
+                             return_value=cddb_result)
     mocker.patch('ripcd.rip.asyncio.create_subprocess_exec',
                  side_effect=[_make_process(), _make_process()])
     await rip_cdda_to_flac(drive='/dev/cdrom', output_dir=tmp_path, username='user')
@@ -481,7 +495,9 @@ async def test_rip_mb_medium_list_not_list_falls_back(mocker: MockerFixture,
                      }
                  })
     cddb_result = CDDBQueryResult(artist='A', album='B', year=2020, genre='g', tracks=('t',))
-    cddb_mock = mocker.patch('ripcd.rip.cddb_query', return_value=cddb_result)
+    cddb_mock = mocker.patch('ripcd.rip.cddb_query',
+                             new_callable=AsyncMock,
+                             return_value=cddb_result)
     mocker.patch('ripcd.rip.asyncio.create_subprocess_exec',
                  side_effect=[_make_process(), _make_process()])
     await rip_cdda_to_flac(drive='/dev/cdrom', output_dir=tmp_path, username='user')
@@ -504,7 +520,9 @@ async def test_rip_mb_medium_not_dict_skipped(mocker: MockerFixture, tmp_path: P
                      }
                  })
     cddb_result = CDDBQueryResult(artist='A', album='B', year=2020, genre='g', tracks=('t',))
-    cddb_mock = mocker.patch('ripcd.rip.cddb_query', return_value=cddb_result)
+    cddb_mock = mocker.patch('ripcd.rip.cddb_query',
+                             new_callable=AsyncMock,
+                             return_value=cddb_result)
     mocker.patch('ripcd.rip.asyncio.create_subprocess_exec',
                  side_effect=[_make_process(), _make_process()])
     await rip_cdda_to_flac(drive='/dev/cdrom', output_dir=tmp_path, username='user')
@@ -529,7 +547,9 @@ async def test_rip_mb_track_list_not_list_skipped(mocker: MockerFixture, tmp_pat
                      }
                  })
     cddb_result = CDDBQueryResult(artist='A', album='B', year=2020, genre='g', tracks=('t',))
-    cddb_mock = mocker.patch('ripcd.rip.cddb_query', return_value=cddb_result)
+    cddb_mock = mocker.patch('ripcd.rip.cddb_query',
+                             new_callable=AsyncMock,
+                             return_value=cddb_result)
     mocker.patch('ripcd.rip.asyncio.create_subprocess_exec',
                  side_effect=[_make_process(), _make_process()])
     await rip_cdda_to_flac(drive='/dev/cdrom', output_dir=tmp_path, username='user')
@@ -554,7 +574,9 @@ async def test_rip_mb_track_not_dict_skipped(mocker: MockerFixture, tmp_path: Pa
                      }
                  })
     cddb_result = CDDBQueryResult(artist='A', album='B', year=2020, genre='g', tracks=('t',))
-    cddb_mock = mocker.patch('ripcd.rip.cddb_query', return_value=cddb_result)
+    cddb_mock = mocker.patch('ripcd.rip.cddb_query',
+                             new_callable=AsyncMock,
+                             return_value=cddb_result)
     mocker.patch('ripcd.rip.asyncio.create_subprocess_exec',
                  side_effect=[_make_process(), _make_process()])
     await rip_cdda_to_flac(drive='/dev/cdrom', output_dir=tmp_path, username='user')
@@ -700,7 +722,7 @@ async def test_rip_flac_spawn_failure_sets_stop_event(mocker: MockerFixture,
                                album='B',
                                track_titles=('T1', 'T2'),
                                year_date='2020')
-    mocker.patch('ripcd.rip.cddb_query')
+    mocker.patch('ripcd.rip.cddb_query', new_callable=AsyncMock)
     mocker.patch('ripcd.rip.asyncio.create_subprocess_exec',
                  side_effect=[_make_process(), OSError('spawn failed')])
     with pytest.raises(OSError, match='spawn failed'):
@@ -716,7 +738,7 @@ async def test_rip_cdda_to_flac_raises_on_flac_failure(mocker: MockerFixture,
                                album='B',
                                track_titles=('T1',),
                                year_date='2021')
-    mocker.patch('ripcd.rip.cddb_query')
+    mocker.patch('ripcd.rip.cddb_query', new_callable=AsyncMock)
     mocker.patch('ripcd.rip.asyncio.create_subprocess_exec',
                  side_effect=[_make_process(), _make_process(code=1)])
     with pytest.raises(sp.CalledProcessError):
