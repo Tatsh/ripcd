@@ -246,28 +246,32 @@ async def rip_cdda_to_flac(drive: StrPath,
     stop_event = asyncio.Event()
     task_queue: asyncio.Queue[_TrackTask | None] = asyncio.Queue()
 
+    async def _rip_track(i: int, track: str) -> _TrackTask:
+        wav_path = album_dir_path / f'{i:02d}-{result.artist}-{track}.wav'
+        task = _TrackTask(track_number=i,
+                          track=track,
+                          wav_path=wav_path,
+                          flac_path=wav_path.with_suffix('.flac'),
+                          flac_started=asyncio.Event())
+        cdparanoia_command = _build_cdparanoia_command(drive=drive,
+                                                       never_skip=never_skip,
+                                                       stderr_callback=stderr_callback,
+                                                       task=task)
+        async with cdparanoia_lock:
+            cdparanoia_process = await asyncio.create_subprocess_exec(
+                *cdparanoia_command,
+                stderr=asyncio.subprocess.PIPE if stderr_callback else None,
+                stdout=asyncio.subprocess.DEVNULL if stderr_callback else None)
+            log.debug('Waiting for cdparanoia to finish (i = %d, track = "%s").', i, track)
+            await _wait_for_process(cdparanoia_process, cdparanoia_command, stderr_callback)
+        return task
+
     async def _run_cdparanoia() -> None:
         try:
             for i, track in enumerate(result.tracks, 1):
                 if stop_event.is_set():
                     return
-                wav_path = album_dir_path / f'{i:02d}-{result.artist}-{track}.wav'
-                task = _TrackTask(track_number=i,
-                                  track=track,
-                                  wav_path=wav_path,
-                                  flac_path=wav_path.with_suffix('.flac'),
-                                  flac_started=asyncio.Event())
-                cdparanoia_command = _build_cdparanoia_command(drive=drive,
-                                                               never_skip=never_skip,
-                                                               stderr_callback=stderr_callback,
-                                                               task=task)
-                async with cdparanoia_lock:
-                    cdparanoia_process = await asyncio.create_subprocess_exec(
-                        *cdparanoia_command,
-                        stderr=asyncio.subprocess.PIPE if stderr_callback else None,
-                        stdout=asyncio.subprocess.DEVNULL if stderr_callback else None)
-                    log.debug('Waiting for cdparanoia to finish (i = %d, track = "%s").', i, track)
-                    await _wait_for_process(cdparanoia_process, cdparanoia_command, stderr_callback)
+                task = await _rip_track(i, track)
                 await task_queue.put(task)
                 await task.flac_started.wait()
         finally:
