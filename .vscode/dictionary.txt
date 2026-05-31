@@ -1,6 +1,5 @@
 albumartist
 anchore
-Ångström
 anyio
 appdir
 appimage
@@ -77,6 +76,7 @@ notarytool
 numpy
 onefile
 oneline
+ostype
 pathlib
 pavelzw
 pipx
@@ -134,3 +134,4 @@ xcrun
 yapf
 yapfignore
 yarnrc
+Ångström
