@@ -74,15 +74,14 @@ namedtuples
 niquests
 norecursedirs
 notarytool
-npmjs
 numpy
 onefile
 oneline
-ostype
 pathlib
 pavelzw
 pipx
 plistlib
+preapproved
 prodvers
 pycache
 pydantic
@@ -121,6 +120,8 @@ tostring
 tracknumber
 ubyte
 udvare
+undraft
+undrafted
 useragent
 vendored
 venv
@@ -128,6 +129,7 @@ vers
 virtualenv
 wiswa
 wiswa's
+worktree
 xcrun
 yapf
 yapfignore
