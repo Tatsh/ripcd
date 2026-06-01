@@ -1,8 +1,8 @@
 {
   "_wiswa": {
-    "commandLine": "wiswa",
-    "lastRun": "2026-05-31T20:34:41Z",
-    "version": "93847c8-dirty"
+    "commandLine": "wiswa -d",
+    "lastRun": "2026-06-01T11:42:41Z",
+    "version": "59b5e59-dirty"
   },
   "contributors": ["Andrew Udvare <audvare@gmail.com>"],
   "cspell": {
