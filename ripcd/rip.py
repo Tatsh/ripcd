@@ -221,7 +221,7 @@ async def rip_cdda_to_flac(drive: StrPath,
         If ``cdparanoia`` or ``flac`` exits with a non-zero code.
     TypeError
         If stderr is ``None`` when *stderr_callback* is provided.
-    """  # noqa: DOC502
+    """  # ruff:ignore[docstring-extraneous-exception]
     try:
         disc = await asyncio.to_thread(_read_disc, drive)
     except Exception as e:
