@@ -55,7 +55,7 @@ def main(drive: Path,
          *,
          accept_first_cddb_match: bool = True,
          debug: bool = False) -> None:
-    """Rip an audio disc to FLAC files; requires cdparanoia and flac in PATH."""  # noqa: DOC501
+    """Rip an audio disc to FLAC files; requires cdparanoia and flac in PATH."""  # ruff:ignore[docstring-missing-exception]
     setup_logging(debug=debug, loggers={'ripcd': {}})
     if username is None:  # pragma: no cover
         username = getpass.getuser()
