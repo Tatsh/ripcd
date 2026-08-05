@@ -9,7 +9,7 @@ import subprocess as sp
 
 from bascom import setup_logging
 import click
-import discid  # type: ignore[import-untyped]  # Third-party package does not ship typing metadata.
+import discid
 import niquests
 
 from .rip import rip_cdda_to_flac
@@ -18,7 +18,7 @@ __all__ = ('main',)
 
 
 def _get_default_drive() -> str:
-    return discid.get_default_device()  # type: ignore[no-any-return]  # Untyped third-party.
+    return discid.get_default_device()
 
 
 @click.command(context_settings={'help_option_names': ('-h', '--help')})

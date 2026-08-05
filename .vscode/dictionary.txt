@@ -1,5 +1,6 @@
 albumartist
 anchore
+Ångström
 anyio
 appdir
 appimage
@@ -45,6 +46,7 @@ foxundermoon
 functools
 globaltoc
 gnudb
+handoff
 hoverxref
 htmlcov
 intersphinx
@@ -108,6 +110,7 @@ snapcore
 snapcraft
 soupsieve
 sphinxcontrib
+statusline
 syft
 tatsh
 testpaths
@@ -135,4 +138,3 @@ yapf
 yapfignore
 yarnrc
 zizmor
-Ångström

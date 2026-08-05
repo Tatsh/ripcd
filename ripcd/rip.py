@@ -10,8 +10,8 @@ import subprocess as sp
 
 from deltona.media import cddb_query
 import anyio
-import discid  # type: ignore[import-untyped]  # Third-party package does not ship typing metadata.
-import musicbrainzngs  # type: ignore[import-untyped]  # Third-party package does not ship stubs.
+import discid
+import musicbrainzngs  # type: ignore[import-untyped]
 
 if TYPE_CHECKING:
     from deltona.typing import StrPath
