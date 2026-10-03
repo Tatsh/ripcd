@@ -6,9 +6,10 @@ from typing import TYPE_CHECKING
 from unittest.mock import AsyncMock
 import subprocess as sp
 
-from ripcd.main import main as ripcd
 import niquests
 import pytest
+
+from ripcd.main import main as ripcd
 
 if TYPE_CHECKING:
     from pathlib import Path

@@ -8,8 +8,9 @@ from unittest.mock import AsyncMock, MagicMock
 import subprocess as sp
 
 from deltona.media import CDDBQueryResult
-from ripcd.rip import rip_cdda_to_flac
 import pytest
+
+from ripcd.rip import rip_cdda_to_flac
 
 if TYPE_CHECKING:
     from pathlib import Path
